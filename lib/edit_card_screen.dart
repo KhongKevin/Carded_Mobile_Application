@@ -36,11 +36,11 @@ class _EditCardScreenState extends State<EditCardScreen> {
     _lastNameController =
         TextEditingController(text: widget.userCard.contactPage['Lname']);
     _emailController =
-    TextEditingController(text: widget.userCard.contactPage['Email']);
+        TextEditingController(text: widget.userCard.contactPage['Email']);
     _linkedinController =
-    TextEditingController(text: widget.userCard.contactPage['Linkedin']);
+        TextEditingController(text: widget.userCard.contactPage['Linkedin']);
     _websiteController =
-    TextEditingController(text: widget.userCard.contactPage['Website']);
+        TextEditingController(text: widget.userCard.contactPage['Website']);
   }
 
   @override

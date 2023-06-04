@@ -101,32 +101,32 @@ class CardedHomePage extends StatelessWidget {
                                 ),
 
                                 SizedBox(height: 50),
-                          SizedBox(
-                            width: 200.0, // set the desired width here
-                            child: ElevatedButton(
-                              child: Text("Sign Up Page"),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => SignUpScreen()),
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(height: 50),
-                          SizedBox(
-                            width: 200.0, // set the desired width here
-                            child: ElevatedButton(
-                              child: Text("Settings"),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => SettingsScreen()),
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(height: 50),
+                                SizedBox(
+                                  width: 200.0, // set the desired width here
+                                  child: ElevatedButton(
+                                    child: Text("Sign Up Page"),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 50),
+                                SizedBox(
+                                  width: 200.0, // set the desired width here
+                                  child: ElevatedButton(
+                                    child: Text("Settings"),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => SettingsScreen()),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 50),
 
                                 //This is a test, hard coded wallet in here in case the sign in / login authorization does not work :D
                                 SizedBox(
@@ -168,5 +168,4 @@ class CardedHomePage extends StatelessWidget {
     );
   }
 }
-
 
