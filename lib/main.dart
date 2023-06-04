@@ -1,11 +1,9 @@
-import 'package:carded/QRScanner.dart';
 import 'package:carded/settings_screen.dart';
 import 'package:carded/sign_up_screen.dart';
 import 'package:carded/wallet_display_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'QRGenerator.dart';
 import 'login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -20,13 +18,14 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => UserProvider(),
-      child: const MyApp(),
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -37,14 +36,22 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const CardedHomePage(),
+      home: CardedHomePage(),
     );
   }
 }
 class CardedHomePage extends StatelessWidget {
-  const CardedHomePage({super.key});
+  CardedHomePage({super.key});
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
-  Future<User?> getCurrentUser(BuildContext context) async {
+  Future<void> _signOut() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      print(e);  // Optional: add error handling here
+    }
+  }
+  Future<User?> getCurrentUser() async {
     final firebaseUser = auth.FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
       final docSnapshot = await FirebaseFirestore.instance
@@ -53,18 +60,16 @@ class CardedHomePage extends StatelessWidget {
           .get();
       if (docSnapshot.exists) {
         User user = User.fromDocument(docSnapshot);
-        Provider.of<UserProvider>(context, listen: false).setUser(user);
         return user;
       }
     }
-    // Return test user if no logged in user or user does not exist in Firestore
-    return User("defaultID", "defaultEmail", "defaultCard", []);
+    // Return null if no logged in user or user does not exist in Firestore
+    return null;
   }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<User?>(
-      future: getCurrentUser(context),
+      future: getCurrentUser(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
@@ -72,14 +77,15 @@ class CardedHomePage extends StatelessWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           final user = snapshot.data;
+          if (user != null) {
+            Provider.of<UserProvider>(context, listen: false).setUser(user);
+          }
           return Scaffold(
               appBar: AppBar(title: const Text("Carded")),
               body: FractionallySizedBox(
                   heightFactor: 0.7,
-                  child:
-                  Center(
-                      child:
-                      SingleChildScrollView(
+                  child: Center(
+                      child: SingleChildScrollView(
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
@@ -130,10 +136,26 @@ class CardedHomePage extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => WalletDisplayScreen(loggedin: user ?? User("defaultID", "defaultEmail", "defaultCard", []))),
+                                        MaterialPageRoute(builder: (context) => WalletDisplayScreen()),
                                       );
                                     },
                                   ),
+                                ),
+                                SizedBox(height: 50),
+                                SizedBox(
+                                  width: 200.0, // set the desired width here
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      await auth.FirebaseAuth.instance.signOut();
+                                      Provider.of<UserProvider>(context, listen: false).signOut(); // Added this line
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                                      );
+                                    },
+                                    child: Text("Sign Out"),
+                                  ),
+
                                 ),
                               ]
                           )

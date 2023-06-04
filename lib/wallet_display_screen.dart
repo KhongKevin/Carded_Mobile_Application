@@ -4,10 +4,11 @@ import 'package:carded/user.dart';
 import 'package:carded/user_card.dart';
 import 'package:flutter/material.dart';
 import 'card_display.dart';
+import 'package:provider/provider.dart';
 
 class WalletDisplayScreen extends StatefulWidget {
-  final User loggedin;
-  const WalletDisplayScreen({Key? key, required this.loggedin}): super(key: key);
+  WalletDisplayScreen({Key? key}): super(key: key);
+
   @override
   _WalletDisplayScreenState createState() => _WalletDisplayScreenState();
 }
@@ -18,6 +19,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
   late Animation<double> _fadeAnimation;
   bool _isFlipped = false;
   List<User_Card> _walletUsers = [];
+
   @override
   void initState() {
     super.initState();
@@ -39,11 +41,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
       parent: _controller,
       curve: Curves.easeInOut,
     ));
-    widget.loggedin.fetchWalletUsers().then((users) {
-      setState(() {
-        _walletUsers = users;
-      });
-    });
   }
 
   @override
@@ -64,98 +61,110 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.loggedin.email)),
-      body: Stack(
-          alignment: Alignment.center,
-          children: [
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return SlideTransition(
-                  position: _slideAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: child,
-                  ),
-                );
-              },
-              child: ListView.builder(
-                itemCount: _walletUsers.length,
-                itemBuilder: (context, index) {
-                  return CardDisplay(
-                    firstName: _walletUsers[index].contactPage['Fname'] ?? 'N/A',
-                    lastName: _walletUsers[index].contactPage['Lname'] ?? 'N/A',
-                    email: _walletUsers[index].contactPage['Email'] ?? 'N/A',
-                    linkedin: _walletUsers[index].contactPage['Linkedin'] ?? 'N/A',
-                    website: _walletUsers[index].contactPage['Website'] ?? 'N/A',
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user ?? User("defaultID", "defaultEmail", "defaultCard", []);
 
-                  );
-                },
-              ),
-            ),
+        if (_walletUsers.isEmpty && user.email != "defaultEmail") {
+          user.fetchWalletUsers().then((users) {
+            setState(() {
+              _walletUsers = users;
+            });
+          });
+        }
 
-            if (!_isFlipped)
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => QRScannerPage()),
+        return Scaffold(
+          appBar: AppBar(title: Text(user.email)),
+          body: Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: ListView.builder(
+                    itemCount: _walletUsers.length,
+                    itemBuilder: (context, index) {
+                      return CardDisplay(
+                        firstName: _walletUsers[index].contactPage['Fname'] ?? 'N/A',
+                        lastName: _walletUsers[index].contactPage['Lname'] ?? 'N/A',
+                        email: _walletUsers[index].contactPage['Email'] ?? 'N/A',
+                        linkedin: _walletUsers[index].contactPage['Linkedin'] ?? 'N/A',
+                        website: _walletUsers[index].contactPage['Website'] ?? 'N/A',
                       );
                     },
-                    child: Text('Scan QR Code'),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => QRCodePage(loggedIn: User("testID", "testEmail", "testCard", []))),
-                      );
-                    },
-                    child: Text('Display Your QR Code'),
+                ),
+
+                if (!_isFlipped)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => QRScannerPage()),
+                          );
+                        },
+                        child: Text('Scan QR Code'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => QRCodePage(loggedIn: user)),
+                          );
+                        },
+                        child: Text('Display Your QR Code'),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-          ]
-      ),
-      bottomNavigationBar: Container(
-        height: 30,
-        alignment: Alignment.bottomCenter,
-        child: InkWell(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
+              ]
           ),
-          onTap: () {
-            if (_isFlipped) {
-              _slideCardsBackDown();
-            } else {
-              _controller.forward();
-            }
-            _toggleFlip();
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+          bottomNavigationBar: Container(
+            height: 30,
+            alignment: Alignment.bottomCenter,
+            child: InkWell(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(15), topRight: Radius.circular(15),
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
               ),
-            ), height: 30, width: 300,
-            alignment: Alignment.center,
-            child: Text(
-              _isFlipped ? 'Hide Wallet' : 'Show Wallet',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+              onTap: () {
+                if (_isFlipped) {
+                  _slideCardsBackDown();
+                } else {
+                  _controller.forward();
+                }
+                _toggleFlip();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15), topRight: Radius.circular(15),
+                  ),
+                ), height: 30, width: 300,
+                alignment: Alignment.center,
+                child: Text(
+                  _isFlipped ? 'Hide Wallet' : 'Show Wallet',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
-
 }

@@ -90,5 +90,10 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void signOut() {
+    _user = null; // Sign out
+    notifyListeners();
+  }
+
 }
 
