@@ -1,0 +1,158 @@
+[33mcommit 53185d8d7dbfc22338ad81512a8b99a2fe1329a9[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Kevin Khong <kevin79ers@gmail.com>
+Date:   Sun May 21 18:25:04 2023 -0700
+
+    guest sign in now functional, changed UI: qr scanner and generator now in wallet page. fixed animation
+
+[1mdiff --git a/lib/guest_sign_in_screen.dart b/lib/guest_sign_in_screen.dart[m
+[1mindex 895707d..9c3e717 100644[m
+[1m--- a/lib/guest_sign_in_screen.dart[m
+[1m+++ b/lib/guest_sign_in_screen.dart[m
+[36m@@ -13,7 +13,6 @@[m [mclass _GuestSignInScreenState extends State<GuestSignInScreen> {[m
+   TextEditingController emailController = TextEditingController();[m
+   final FirebaseAuth _auth = FirebaseAuth.instance;[m
+ [m
+[31m-  @override[m
+   void dispose() {[m
+     firstNameController.dispose();[m
+     lastNameController.dispose();[m
+[36m@@ -36,9 +35,11 @@[m [mclass _GuestSignInScreenState extends State<GuestSignInScreen> {[m
+         print('Last Name: $lastName');[m
+         print('Email: $email');[m
+         await _addUser(email, cardId);[m
+[32m+[m[32m        showSnackBar(context, 'Success');[m
+       }[m
+     } catch (e) {[m
+       print(e);[m
+[32m+[m[32m      showSnackBar(context, 'Fail');[m
+     }[m
+   }[m
+ [m
+[36m@@ -46,12 +47,18 @@[m [mclass _GuestSignInScreenState extends State<GuestSignInScreen> {[m
+     return database.collection('users').add({[m
+       'Email': email,[m
+       'Card': cardId,[m
+[31m-      'Wallet': [][m
+[32m+[m[32m      'Wallet': [],[m
+     });[m
+   }[m
+ [m
+[32m+[m[32m  void showSnackBar(BuildContext context, String message) {[m
+[32m+[m[32m    ScaffoldMessenger.of(context).showSnackBar([m
+[32m+[m[32m      SnackBar([m
+[32m+[m[32m        content: Text(message),[m
+[32m+[m[32m      ),[m
+[32m+[m[32m    );[m
+[32m+[m[32m  }[m
+ [m
+[31m-  @override[m
+   Widget build(BuildContext context) {[m
+     return Scaffold([m
+       appBar: AppBar([m
+[1mdiff --git a/lib/main.dart b/lib/main.dart[m
+[1mindex 045a54d..9774a6d 100644[m
+[1m--- a/lib/main.dart[m
+[1m+++ b/lib/main.dart[m
+[36m@@ -103,30 +103,7 @@[m [mclass CardedHomePage extends StatelessWidget{[m
+ [m
+                     ),[m
+                   ),[m
+[31m-                  SizedBox([m
+[31m-                    width: 200.0, // set the desired width here[m
+[31m-                    child: ElevatedButton([m
+[31m-                      child: Text("QR Generator"),[m
+[31m-                      onPressed: () {[m
+[31m-                        Navigator.push([m
+[31m-                          context,[m
+[31m-                          MaterialPageRoute(builder: (context) => QRCodePage(loggedIn: User("testID", "testEmail", "testCard", []))),[m
+[31m-                        );[m
+[31m-                      },[m
+[31m-                    ),[m
+[31m-                  ),[m
+[31m-                  SizedBox([m
+[31m-                    width: 200.0, // set the desired width here[m
+[31m-                    child: ElevatedButton([m
+[31m-                      child: Text("QR Scanner"),[m
+[31m-                      onPressed: () {[m
+[31m-                        Navigator.push([m
+[31m-                          context,[m
+[31m-                          MaterialPageRoute(builder: (context) => QRScannerPage()),[m
+[31m-                        );[m
+[31m-                      },[m
+[31m-                    ),[m
+[31m-                  ),[m
+[32m+[m
+                 ][m
+             )[m
+             )[m
+[1mdiff --git a/lib/wallet_display_screen.dart b/lib/wallet_display_screen.dart[m
+[1mindex 6933604..c820fd8 100644[m
+[1m--- a/lib/wallet_display_screen.dart[m
+[1m+++ b/lib/wallet_display_screen.dart[m
+[36m@@ -1,3 +1,5 @@[m
+[32m+[m[32mimport 'package:carded/QRGenerator.dart';[m
+[32m+[m[32mimport 'package:carded/QRScanner.dart';[m
+ import 'package:carded/user.dart';[m
+ import 'package:flutter/material.dart';[m
+ import 'card_display.dart';[m
+[36m@@ -54,39 +56,67 @@[m [mclass _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi[m
+     _controller.reverse();[m
+   }[m
+ [m
+[32m+[m[32m  @override[m
+   @override[m
+   Widget build(BuildContext context) {[m
+     return Scaffold([m
+[31m-        appBar: AppBar(title: Text(widget.loggedin.email)), body: FractionallySizedBox(heightFactor: 0.9,[m
+[31m-          child: Center([m
+[31m-            child: AnimatedBuilder([m
+[32m+[m[32m      appBar: AppBar(title: Text(widget.loggedin.email)),[m
+[32m+[m[32m      body: Stack([m
+[32m+[m[32m          alignment: Alignment.center,[m
+[32m+[m[32m          children: [[m
+[32m+[m[32m            AnimatedBuilder([m
+               animation: _controller,[m
+               builder: (context, child) {[m
+                 return SlideTransition([m
+                   position: _slideAnimation, child: FadeTransition([m
+[31m-                    opacity: _fadeAnimation, child: child,[m
+[31m-                  ),[m
+[32m+[m[32m                  opacity: _fadeAnimation, child: child,[m
+[32m+[m[32m                ),[m
+                 );[m
+[31m-                }, child: ListView([m
+[31m-                  children: [[m
+[31m-                  SizedBox(width: 50, height: 20),[m
+[31m-                  CardDisplay(firstName: "Kevin", lastName: "Khong", email: "kevin79ers@gmail.com", linkedin: "linkedin.com/kevin-khong", website: "kevinkhong-portfolio.com",),[m
+[31m-                  SizedBox(width: 50, height: 20),[m
+[31m-                  CardDisplay(firstName: "Castel", lastName: "Villalobos", email: "cvbos19@yahoo.com", linkedin: "linkedin.com/castel-vil",),[m
+[32m+[m[32m              },[m
+[32m+[m[32m              child: ListView([m
+[32m+[m[32m                children: [[m
+                   SizedBox(width: 50, height: 20),[m
+[31m-                  CardDisplay(firstName: "Ayush", lastName: "Nair", email: "Aniar@gmail.com", website: "ayush-projects.com",),[m
+[31m-                  SizedBox(width: 50, height: 20),[m
+[31m-                  CardDisplay(firstName: "Kevin", lastName: "Khong", email: "kevin79ers@gmail.com", linkedin: "linkedin.com/kevin-khong", website: "kevinkhong-portfolio.com",),[m
+[31m-                  SizedBox(width: 50, height: 20),[m
+[31m-                  CardDisplay(firstName: "Castel", lastName: "Vilallobos", email: "cvbos19@yahoo.com", linkedin: "linkedin.com/castel-vil",),[m
+[31m-                  SizedBox(width: 50, height: 20),[m
+[31m-                    CardDisplay(firstName: "Ayush", lastName: "Nair", email: "Aniar@gmail.com", website: "ayush-projects.com",),[m
+[31m-                    SizedBox(width: 50, height: 20),[m
+[31m-                  ],[m
+[31m-                ),[m
+[32m+[m[32m        CardDisplay(firstName: "Kevin", lastName: "Khong", email: "kevin79ers@gmail.com", linkedin: "linkedin.com/kevin-khong", website: "kevinkhong-portfolio.com",),[m
+[32m+[m[32m        SizedBox(width: 50, height: 20),[m
+[32m+[m[32m        CardDisplay(firstName: "Castel", lastName: "Villalobos", email: "cvbos19@yahoo.com", linkedin: "linkedin.com/castel-vil",),[m
+[32m+[m[32m        SizedBox(width: 50, height: 20),[m
+[32m+[m[32m        CardDisplay(firstName: "Ayush", lastName: "Nair", email: "Aniar@gmail.com", website: "ayush-projects.com",),[m
+[32m+[m[32m        SizedBox(width: 50, height: 20),[m
+[32m+[m[32m        CardDisplay(firstName: "Kevin", lastName: "Khong", email: "kevin79ers@gmail.com", linkedin: "linkedin.com/kevin-khong", website: "kevinkhong-portfolio.com",),[m
+[32m+[m[32m        SizedBox(width: 50, height: 20),[m
+[32m+[m[32m        CardDisplay(firstName: "Castel", lastName: "Vilallobos", email: "cvbos19@yahoo.com", linkedin: "linkedin.com/castel-vil",),[m
+[32m+[m[32m        SizedBox(width: 50, height: 20),[m
+[32m+[m[32m        CardDisplay(firstName: "Ayush", lastName: "Nair", email: "Aniar@gmail.com", website: "ayush-projects.com",),[m
+[32m+[m[32m        SizedBox(width: 50, height: 20),[m
+[32m+[m[32m        ],[m
+[32m+[m[32m              ),[m
+             ),[m
+[31m
