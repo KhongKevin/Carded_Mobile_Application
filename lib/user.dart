@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:carded/user_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
 
 FirebaseFirestore database = FirebaseFirestore.instance;
 
@@ -119,6 +123,34 @@ class UserProvider with ChangeNotifier {
       _userCard = updatedCard; // Update the userCard property
       notifyListeners();
     }
+  }
+  Future<String> uploadProfilePicture(File imageFile, String uid) async {
+    String fileName = 'users/$uid/profilePicture.png'; // File path in the storage
+
+    Reference ref = FirebaseStorage.instance.ref().child(fileName);
+
+    //upload the file to Firebase Storage
+    UploadTask uploadTask = ref.putFile(imageFile);
+    TaskSnapshot taskSnapshot = await uploadTask;
+
+    //get the URL of the uploaded file
+    String imageUrl = await taskSnapshot.ref.getDownloadURL();
+
+    // Update the imageUrl of the userCard
+    User_Card updatedCard = _userCard; // Assuming _userCard is the current user's card
+    updatedCard.profilePictureUrl = imageUrl; // Assuming imageUrl is a field in your User_Card class
+
+    // Update the user card with the updated card
+    updateUserCard(updatedCard);
+
+    return imageUrl;
+  }
+
+  //fetch wallet users from database
+  Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
+    final querySnapshot = await database.collection('users').where('email', isEqualTo: userEmail).get();
+    final walletUsers = querySnapshot.docs.map((doc) => User_Card.fromDocument(doc)).toList();
+    return walletUsers;
   }
 
   void signOut() {

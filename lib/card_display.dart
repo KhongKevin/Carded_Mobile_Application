@@ -36,9 +36,10 @@ class CardDisplay extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: profilePictureUrl != null
+                  backgroundImage: (profilePictureUrl != null && profilePictureUrl != '')
                       ? NetworkImage(profilePictureUrl!)
                       : AssetImage(defaultProfilePicture) as ImageProvider,
+
                 ),
                 SizedBox(width: 16),
                 Text(

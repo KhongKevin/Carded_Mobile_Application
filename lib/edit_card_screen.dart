@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'user.dart';
 import 'package:carded/user_card.dart';
@@ -17,7 +19,10 @@ class EditCardScreen extends StatefulWidget {
 class _EditCardScreenState extends State<EditCardScreen> {
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
-  // Add controllers for other fields
+  late TextEditingController _emailController;       // Add this
+  late TextEditingController _linkedinController;    // Add this
+  late TextEditingController _websiteController;     // Add this
+  late File? _profileImage;
 
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
   GlobalKey<ScaffoldMessengerState>();
@@ -30,17 +35,33 @@ class _EditCardScreenState extends State<EditCardScreen> {
         TextEditingController(text: widget.userCard.contactPage['Fname']);
     _lastNameController =
         TextEditingController(text: widget.userCard.contactPage['Lname']);
-    // Initialize other controllers with existing values
+    _emailController =
+    TextEditingController(text: widget.userCard.contactPage['Email']);
+    _linkedinController =
+    TextEditingController(text: widget.userCard.contactPage['Linkedin']);
+    _websiteController =
+    TextEditingController(text: widget.userCard.contactPage['Website']);
   }
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _emailController.dispose();
+    _linkedinController.dispose();
+    _websiteController.dispose();
+    _profileImage = null;
     // Dispose other controllers
     super.dispose();
   }
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
+    setState(() {
+      _profileImage = File(image!.path);
+    });
+  }
   void _showSnackBar(String message) {
     _scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
@@ -48,30 +69,46 @@ class _EditCardScreenState extends State<EditCardScreen> {
       ),
     );
   }
-
   void _saveCardDetails() async {
     // Get the updated values from the form fields
     String firstName = _firstNameController.text;
     String lastName = _lastNameController.text;
-    // Get other field values as needed
+    String email = _emailController.text;
+    String linkedin = _linkedinController.text;
+    String website = _websiteController.text;
+    File? _profileImage = null; // Initialize with null
 
     User_Card? updatedUserCard;
-
     try {
-      // Update the card details in Firebase
       FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      if (_profileImage != null) {
+        String profileImageUrl = await Provider.of<UserProvider>(
+          context,
+          listen: false,
+        ).uploadProfilePicture(_profileImage!, widget.userCard.id);
+
+        //update the profile picture URL in Firebase
+        await firestore.collection('cards').doc(widget.userCard.id).update({
+          'profilePictureUrl': profileImageUrl,
+        });
+      }
+
+      // Update the other fields in Firebase
       await firestore.collection('cards').doc(widget.userCard.id).update({
         'contactPage.Fname': firstName,
         'contactPage.Lname': lastName,
-        // Update other fields as needed
+        'contactPage.Email': email,
+        'contactPage.Linkedin': linkedin,
+        'contactPage.Website': website,
       });
 
-      // Retrieve the updated user card from Firebase
+      //retrieve the updated user card from Firebase
       DocumentSnapshot cardSnapshot =
       await firestore.collection('cards').doc(widget.userCard.id).get();
       updatedUserCard = User_Card.fromDocument(cardSnapshot);
 
-      // Update the user card in the user model
+      // update the user card
       Provider.of<UserProvider>(context, listen: false)
           .updateUserCard(updatedUserCard);
 
@@ -82,11 +119,13 @@ class _EditCardScreenState extends State<EditCardScreen> {
       _showSnackBar('Failed to save card details');
     }
 
-    if (updatedUserCard != null) {
+    if (updatedUserCard != null || _profileImage == null) {
       // Navigate back to the previous screen and pass the updated user card
       Navigator.pop(context, updatedUserCard);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +137,10 @@ class _EditCardScreenState extends State<EditCardScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              IconButton(
+                icon: Icon(Icons.photo_library),
+                onPressed: _pickImage,
+              ),
               TextFormField(
                 controller: _firstNameController,
                 decoration: InputDecoration(labelText: 'First Name'),
@@ -106,7 +149,18 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 controller: _lastNameController,
                 decoration: InputDecoration(labelText: 'Last Name'),
               ),
-              // Add other form fields
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+              ),
+              TextFormField(
+                controller: _linkedinController,
+                decoration: InputDecoration(labelText: 'LinkedIn'),
+              ),
+              TextFormField(
+                controller: _websiteController,
+                decoration: InputDecoration(labelText: 'Website'),
+              ),
               ElevatedButton(
                 onPressed: _saveCardDetails,
                 child: Text('Save'),
