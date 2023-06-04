@@ -25,18 +25,18 @@ class User_Card with ChangeNotifier {
   }
   static Future<String> addCard(String fname, String lname, String email) async {
     final card = <String, dynamic>{
-    "contactPage": {
-    "Email": email,
-    "Fname": fname,
-    "Lname": lname,
-    "Linkedin": "",
-    "Website": ""
-    },
-    "bioPage":{
-    "Current Employment": "",
-    "Education": "",
-    "Experience": ""
-    }};
+      "contactPage": {
+        "Email": email,
+        "Fname": fname,
+        "Lname": lname,
+        "Linkedin": "",
+        "Website": ""
+      },
+      "bioPage":{
+        "Current Employment": "",
+        "Education": "",
+        "Experience": ""
+      }};
     DocumentReference docRef = await database.collection("cards").add(card);
     return docRef.id;
   }

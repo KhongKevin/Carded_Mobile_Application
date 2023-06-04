@@ -95,8 +95,14 @@ class UserProvider with ChangeNotifier {
   User? _user;
   User_Card _userCard = User_Card({'': ''}, {'': ''}); // Add the userCard property
 
-  UserProvider() {
+  // Add an initializer to use in the signOut function
+  void _init() {
     _user = User("defaultID", "defaultEmail", "defaultCard", []);
+    _userCard = User_Card({'': ''}, {'': ''});
+  }
+
+  UserProvider() {
+    _init();
   }
 
   User? get user => _user;
@@ -116,7 +122,7 @@ class UserProvider with ChangeNotifier {
   }
 
   void signOut() {
-    _user = null; // Sign out
+    _init(); // Reset the user and userCard to their initial states
     notifyListeners();
   }
 }
