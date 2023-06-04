@@ -117,179 +117,175 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                   child: CircularProgressIndicator(),
                 );
               }
-            if (_walletUsers.isNotEmpty) {
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    if (!_isFlipped) ...[
-                      SizedBox(height: 100),
-                      SizedBox(height: 30,
-                          child: Text(
-                              "Your Card", style: TextStyle(fontSize: 20))),
-                      Container(
-                        height: 200,
-                        child: CardDisplay(
-                          firstName: userCardData.contactPage['Fname'] ??
-                              'First Name',
-                          lastName: userCardData.contactPage['Lname'] ??
-                              'Last Name',
-                          email: userCardData.contactPage['Email'] ?? 'Email',
-                          linkedin: userCardData.contactPage['Linkedin'] ??
-                              'linkedIn',
-                          website: userCardData.contactPage['Website'] ??
-                              'Website',
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (!_isFlipped) ...[
+                        SizedBox(height: 100),
+                        SizedBox(height: 30,
+                            child: Text(
+                                "Your Card", style: TextStyle(fontSize: 20))),
+                        Container(
+                          height: 200,
+                          child: CardDisplay(
+                            firstName: userCardData.contactPage['Fname'] ??
+                                'First Name',
+                            lastName: userCardData.contactPage['Lname'] ??
+                                'Last Name',
+                            email: userCardData.contactPage['Email'] ?? 'Email',
+                            linkedin: userCardData.contactPage['Linkedin'] ??
+                                'linkedIn',
+                            website: userCardData.contactPage['Website'] ??
+                                'Website',
+                          ),
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>
-                                EditCardScreen(userCard: userCardData)),
-                          ).then((updatedUserCard) {
-                            if (updatedUserCard != null) {
-                              currUser.UserProvider userProvider = Provider.of<
-                                  currUser.UserProvider>(
-                                  context, listen: false);
-                              userProvider.updateUserCard(
-                                  updatedUserCard as card
-                                      .User_Card); // Here we update the card
-                            }
-                          });
-                        },
-                        child: Text('Edit Card'),
-                      ),
-                      SizedBox(height: 100),
-                    ],
-                    if (!_isFlipped)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => QRScannerPage()),
-                              );
-                            },
-                            child: Text('Scan QR Code'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) =>
-                                    QRCodePage(loggedIn: user)),
-                              );
-                            },
-                            child: Text('Display Your QR Code'),
-                          ),
-                        ],
-                      ),
-                    if (!_isFlipped)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // ...
-                          // your existing buttons here
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Form(
-                              key: _formKey,
-                              child: TextFormField(
-                                controller: _textController,
-                                decoration: InputDecoration(
-                                  labelText: 'Enter username',
-                                  border: OutlineInputBorder(),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) =>
+                                  EditCardScreen(userCard: userCardData)),
+                            ).then((updatedUserCard) {
+                              if (updatedUserCard != null) {
+                                currUser.UserProvider userProvider = Provider.of<
+                                    currUser.UserProvider>(
+                                    context, listen: false);
+                                userProvider.updateUserCard(
+                                    updatedUserCard as card
+                                        .User_Card); // Here we update the card
+                              }
+                            });
+                          },
+                          child: Text('Edit Card'),
+                        ),
+                        SizedBox(height: 100),
+                      ],
+                      if (!_isFlipped)
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => QRScannerPage()),
+                                );
+                              },
+                              child: Text('Scan QR Code'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>
+                                      QRCodePage(loggedIn: user)),
+                                );
+                              },
+                              child: Text('Display Your QR Code'),
+                            ),
+                          ],
+                        ),
+                      if (!_isFlipped)
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // ...
+                            // your existing buttons here
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Form(
+                                key: _formKey,
+                                child: TextFormField(
+                                  controller: _textController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Enter username',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter some text';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
                               ),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                try {
-                                  String newUserId = _textController.text;
+                            ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  try {
+                                    String newUserId = _textController.text;
 
-                                  // Fetch user document from firestore
-                                  DocumentSnapshot userDoc = await database
-                                      .collection('users').doc(newUserId).get();
+                                    // Fetch user document from firestore
+                                    DocumentSnapshot userDoc = await database
+                                        .collection('users').doc(newUserId).get();
 
-                                  // Check if such user exists
-                                  if (userDoc.exists) {
-                                    // Fetch the user's card and add it to the wallet
-                                    await userProvider.user!.addCardToWallet(
-                                        userDoc.get('Card'));
+                                    // Check if such user exists
+                                    if (userDoc.exists) {
+                                      // Fetch the user's card and add it to the wallet
+                                      await userProvider.user!.addCardToWallet(
+                                          userDoc.get('Card'));
 
-                                    // Update _walletUsers
-                                    setState(() {
-                                      _walletUsers.add(
-                                          User_Card.fromDocument(userDoc));
-                                    });
+                                      // Update _walletUsers
+                                      setState(() {
+                                        _walletUsers.add(
+                                            User_Card.fromDocument(userDoc));
+                                      });
 
-                                    // Clear text field
-                                    _textController.clear();
-                                  } else {
-                                    print('No user found with the provided ID');
+                                      // Clear text field
+                                      _textController.clear();
+                                    } else {
+                                      print('No user found with the provided ID');
+                                    }
+                                  } catch (e) {
+                                    print('Error adding user: $e');
                                   }
-                                } catch (e) {
-                                  print('Error adding user: $e');
                                 }
-                              }
-                            },
-                            child: Text('Add User'),
-                          ),
-                        ],
-                      ),
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) {
-                        return SlideTransition(
-                          position: _slideAnimation,
-                          child: FadeTransition(
-                            opacity: _fadeAnimation,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        // to make ListView inside Column
-                        physics: NeverScrollableScrollPhysics(),
-                        // to make ListView inside Column
-                        itemCount: _walletUsers.length,
-                        itemBuilder: (context, index) {
-                          return CardDisplay(
-                            firstName: _walletUsers[index]
-                                .contactPage['Fname'] ?? 'N/A',
-                            lastName: _walletUsers[index]
-                                .contactPage['Lname'] ?? 'N/A',
-                            email: _walletUsers[index].contactPage['Email'] ??
-                                'N/A',
-                            linkedin: _walletUsers[index]
-                                .contactPage['Linkedin'] ?? 'N/A',
-                            website: _walletUsers[index]
-                                .contactPage['Website'] ?? 'N/A',
+                              },
+                              child: Text('Add User'),
+                            ),
+                          ],
+                        ),
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return SlideTransition(
+                            position: _slideAnimation,
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: child,
+                            ),
                           );
                         },
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          // to make ListView inside Column
+                          physics: NeverScrollableScrollPhysics(),
+                          // to make ListView inside Column
+                          itemCount: _walletUsers.length,
+                          itemBuilder: (context, index) {
+                            return CardDisplay(
+                              firstName: _walletUsers[index]
+                                  .contactPage['Fname'] ?? 'N/A',
+                              lastName: _walletUsers[index]
+                                  .contactPage['Lname'] ?? 'N/A',
+                              email: _walletUsers[index].contactPage['Email'] ??
+                                  'N/A',
+                              linkedin: _walletUsers[index]
+                                  .contactPage['Linkedin'] ?? 'N/A',
+                              website: _walletUsers[index]
+                                  .contactPage['Website'] ?? 'N/A',
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
 
-              );
-            }else {
-              return Center(
-              child: Text('No cards in wallet'),
-              );
-            }
+                );
+
+
 
             },
           ),
