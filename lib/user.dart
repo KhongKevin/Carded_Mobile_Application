@@ -9,8 +9,11 @@ class User with ChangeNotifier {
   late String email;
   late String card;
   late List<String> wallet;
+  late User_Card updatedCard;
 
-  User(this.refId, this.email, this.card, this.wallet);
+  User(this.refId, this.email, this.card, this.wallet)
+      : updatedCard = User_Card({'': ''}, {'': ''}); // Initialize an empty card
+
 
   User.fromDocument(DocumentSnapshot doc) {
     this.refId = doc.id;
@@ -56,6 +59,16 @@ class User with ChangeNotifier {
     database.collection("users").add(user);
     print("User added");
   }
+  Future<User_Card> fetchUpdatedCard() async {
+    if (card != "defaultCard") {
+      DocumentSnapshot cardSnapshot =
+      await database.collection('cards').doc(card).get();
+      updatedCard = User_Card.fromDocument(cardSnapshot);
+      updatedCard.id = cardSnapshot.id;  // add this line
+    }
+    return updatedCard;
+  }
+
 
   Future<List<User_Card>> fetchWalletUsers() async {
     List<User_Card> walletUsers = [];
@@ -76,24 +89,34 @@ class User with ChangeNotifier {
   }
 }
 
+
 class UserProvider with ChangeNotifier {
+  FirebaseFirestore database = FirebaseFirestore.instance;
   User? _user;
+  User_Card _userCard = User_Card({'': ''}, {'': ''}); // Add the userCard property
 
   UserProvider() {
     _user = User("defaultID", "defaultEmail", "defaultCard", []);
   }
 
   User? get user => _user;
+  User_Card get userCard => _userCard; // Add getter for userCard
 
   void setUser(User user) {
     _user = user;
     notifyListeners();
   }
 
+  void updateUserCard(User_Card updatedCard) {
+    if (_user != null) {
+      _user!.updatedCard = updatedCard;
+      _userCard = updatedCard; // Update the userCard property
+      notifyListeners();
+    }
+  }
+
   void signOut() {
     _user = null; // Sign out
     notifyListeners();
   }
-
 }
-

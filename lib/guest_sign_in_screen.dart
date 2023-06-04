@@ -58,9 +58,6 @@ class _GuestSignInScreenState extends State<GuestSignInScreen> {
     return null;
   }
 
-
-
-
   Future<void> _addUser(String uid, String email, String cardId) {
     return database.collection('users').doc(uid).set({
       'Email': email,
