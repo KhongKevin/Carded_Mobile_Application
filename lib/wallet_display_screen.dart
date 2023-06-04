@@ -1,7 +1,7 @@
 import 'package:carded/QRGenerator.dart';
 import 'package:carded/QRScanner.dart';
 import 'package:carded/user.dart';
-import 'package:carded/user_card.dart';
+import 'package:carded/user_card.dart' as card;
 import 'package:flutter/material.dart';
 import 'card_display.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +18,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
   bool _isFlipped = false;
-  List<User_Card> _walletUsers = [];
+  List<card.User_Card> _walletUsers = [];
 
   @override
   void initState() {
@@ -64,6 +64,14 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         final user = userProvider.user ?? User("defaultID", "defaultEmail", "defaultCard", []);
+        card.User_Card userCard = card.User_Card({'': ''}, {'': ''}, []); // Initialize an empty card
+
+        // Fetch the user's card if not default
+        if(user.card != "defaultCard") {
+          database.collection('cards').doc(user.card).get().then((docSnapshot) {
+            userCard = card.User_Card.fromDocument(docSnapshot);
+          });
+        }
 
         if (_walletUsers.isEmpty && user.email != "defaultEmail") {
           user.fetchWalletUsers().then((users) {
@@ -72,36 +80,39 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
             });
           });
         }
-
+        // if (!_isFlipped)
+        //   SizedBox(height:100),
+        // SizedBox(height:30, child: Text("Your Card", style: TextStyle(fontSize: 20))),
+        // Container(height: 200, child: CardDisplay(
+        // firstName: userCard.contactPage['Fname'] ?? 'First Name',
+        // lastName: userCard.contactPage['Lname'] ?? 'Last Name',
+        // email: userCard.contactPage['Email'] ?? 'Email',
+        // linkedin: userCard.contactPage['Linkedin'] ?? 'linkedIn',
+        // website: userCard.contactPage['Website'] ?? 'Website',
+        // ),
+        // ),
+        // SizedBox(height:100),
         return Scaffold(
           appBar: AppBar(title: Text(user.email)),
-          body: Stack(
-              alignment: Alignment.center,
+          body: SingleChildScrollView(
+            child: Column(
               children: [
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return SlideTransition(
-                      position: _slideAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: ListView.builder(
-                    itemCount: _walletUsers.length,
-                    itemBuilder: (context, index) {
-                      return CardDisplay(
-                        firstName: _walletUsers[index].contactPage['Fname'] ?? 'N/A',
-                        lastName: _walletUsers[index].contactPage['Lname'] ?? 'N/A',
-                        email: _walletUsers[index].contactPage['Email'] ?? 'N/A',
-                        linkedin: _walletUsers[index].contactPage['Linkedin'] ?? 'N/A',
-                        website: _walletUsers[index].contactPage['Website'] ?? 'N/A',
-                      );
-                    },
+                if (!_isFlipped) ...[
+                  SizedBox(height: 100),
+                  SizedBox(height: 30, child: Text("Your Card", style: TextStyle(fontSize: 20))),
+                  Container(
+                    height: 200,
+                    child: CardDisplay(
+                      firstName: userCard.contactPage['Fname'] ?? 'First Name',
+                      lastName: userCard.contactPage['Lname'] ?? 'Last Name',
+                      email: userCard.contactPage['Email'] ?? 'Email',
+                      linkedin: userCard.contactPage['Linkedin'] ?? 'linkedIn',
+                      website: userCard.contactPage['Website'] ?? 'Website',
+                    ),
                   ),
-                ),
+                  SizedBox(height: 100),
+                ],
+
 
                 if (!_isFlipped)
                   Column(
@@ -127,8 +138,37 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                       ),
                     ],
                   ),
-              ]
+
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: ListView.builder(
+                    shrinkWrap: true, // to make ListView inside Column
+                    physics: NeverScrollableScrollPhysics(), // to make ListView inside Column
+                    itemCount: _walletUsers.length,
+                    itemBuilder: (context, index) {
+                      return CardDisplay(
+                        firstName: _walletUsers[index].contactPage['Fname'] ?? 'N/A',
+                        lastName: _walletUsers[index].contactPage['Lname'] ?? 'N/A',
+                        email: _walletUsers[index].contactPage['Email'] ?? 'N/A',
+                        linkedin: _walletUsers[index].contactPage['Linkedin'] ?? 'N/A',
+                        website: _walletUsers[index].contactPage['Website'] ?? 'N/A',
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
+
           bottomNavigationBar: Container(
             height: 30,
             alignment: Alignment.bottomCenter,
