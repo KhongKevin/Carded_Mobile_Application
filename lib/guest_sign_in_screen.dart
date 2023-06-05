@@ -1,4 +1,5 @@
 import 'package:carded/user.dart' as curr_user;
+import 'package:carded/wallet_display_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:provider/provider.dart';
@@ -45,7 +46,7 @@ class _GuestSignInScreenState extends State<GuestSignInScreen> {
         showSnackBar(context, 'Success');
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => CardedHomePage()),
+          MaterialPageRoute(builder: (context) => const WalletDisplayScreen()),
               (Route<dynamic> route) => false,
         );
 

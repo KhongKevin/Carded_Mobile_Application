@@ -18,7 +18,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => curr_user.UserProvider(),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }

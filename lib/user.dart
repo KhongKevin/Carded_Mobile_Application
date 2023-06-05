@@ -161,35 +161,38 @@ class UserProvider with ChangeNotifier {
     _user = user;
     List<String> w = user.wallet;
 
-    database.collection("cards").
-        where(FieldPath.documentId, whereIn: w).
-        get().
-        then((querySnapshot) {
-          for(var docSnapshot in querySnapshot.docs){
-            String ppurl = docSnapshot['profilePictureUrl'];
-            Map<String, dynamic> bP = docSnapshot['bioPage'];
-            Map<String, dynamic> cP = docSnapshot['contactPage'];
-            Map<String, String> bioPage = {
-              "Current Employment": bP['Current Employment'].toString(),
-              "Education": bP['Education'].toString(),
-              "Experience": bP['Experience'].toString()
-            };
-            Map<String, String> contactPage = {
-              "Email": cP['Email'].toString(),
-              "Fname": cP['Fname'].toString(),
-              "Lname": cP['Lname'].toString(),
-              "Linkedin": cP['Linkedin'].toString(),
-              "Website": cP['Website'].toString()
-            };
+    if (w.isNotEmpty) { // Add this check to ensure wallet is not empty
+      database
+          .collection("cards")
+          .where(FieldPath.documentId, whereIn: w)
+          .get()
+          .then((querySnapshot) {
+        for (var docSnapshot in querySnapshot.docs) {
+          String ppurl = docSnapshot['profilePictureUrl'];
+          Map<String, dynamic> bP = docSnapshot['bioPage'];
+          Map<String, dynamic> cP = docSnapshot['contactPage'];
+          Map<String, String> bioPage = {
+            "Current Employment": bP['Current Employment'].toString() ?? "",
+            "Education": bP['Education'].toString() ?? "",
+            "Experience": bP['Experience'].toString() ?? ""
+          };
+          Map<String, String> contactPage = {
+            "Email": cP['Email'].toString() ?? "",
+            "Fname": cP['Fname'].toString() ?? "",
+            "Lname": cP['Lname'].toString() ?? "",
+            "Linkedin": cP['Linkedin'].toString() ?? "",
+            "Website": cP['Website'].toString() ?? ""
+          };
 
-            User_Card card = User_Card(ppurl, contactPage, bioPage);
-            wallet.add(card);
-          }
-        }, onError: (e) {
-            debugPrint("Error completing: $e");
-          }
-        );
-    notifyListeners();
+          User_Card card = User_Card(ppurl, contactPage, bioPage);
+          wallet.add(card);
+        }
+      }, onError: (e) {
+        debugPrint("Error completing: $e");
+      }
+      );
+      notifyListeners();
+    }
   }
 
 
