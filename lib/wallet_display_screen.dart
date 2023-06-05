@@ -311,6 +311,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                   .contactPage['Linkedin'] ?? 'N/A',
                               website: _walletUsers[index]
                                   .contactPage['Website'] ?? 'N/A',
+                              profilePictureUrl: _walletUsers[index].profilePictureUrl,
                             );
                           },
                         ),
