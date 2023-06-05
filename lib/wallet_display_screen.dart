@@ -53,23 +53,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
     fetchData(); // Call the function to fetch data
   }
 
-  // StreamSubscription? _walletUsersSubscription;
-  // void fetchData() async {
-  //   final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
-  //   final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
-  //
-  //   if (user.card != "defaultCard") {
-  //     // Fetch the user's card if not default
-  //     final docSnapshot = await database.collection('cards').doc(user.card).get();
-  //     final userCard = card.User_Card.fromDocument(docSnapshot);
-  //     userProvider.updateUserCard(userCard);
-  //   }
-  //
-  //   _walletUsersSubscription = user.watchWalletUsers().listen((walletUsers) {
-  //     userProvider.walletUsers = walletUsers; // Use the public setter here
-  //   });
-  //
-  // }
 
   Future<void> fetchData() async {
     _dataFetchCompleter = Completer<void>();
@@ -184,93 +167,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                         ),
                         SizedBox(height: 30),
                       ],
-                      // if (!_isFlipped)
-                      //   Column(
-                      //     mainAxisAlignment: MainAxisAlignment.center,
-                      //     children: [
-                      //       ElevatedButton(
-                      //         onPressed: () {
-                      //           Navigator.push(
-                      //             context,
-                      //             MaterialPageRoute(
-                      //                 builder: (context) => QRScannerPage()),
-                      //           );
-                      //         },
-                      //         child: Text('Scan QR Code'),
-                      //       ),
-                      //       ElevatedButton(
-                      //         onPressed: () {
-                      //           Navigator.push(
-                      //             context,
-                      //             MaterialPageRoute(builder: (context) =>
-                      //                 QRCodePage(loggedIn: user)),
-                      //           );
-                      //         },
-                      //         child: Text('Display Your QR Code'),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // if (!_isFlipped)
-                      //   Column(
-                      //     mainAxisAlignment: MainAxisAlignment.center,
-                      //     children: [
-                      //       // ...
-                      //       // your existing buttons here
-                      //       Padding(
-                      //         padding: EdgeInsets.all(8.0),
-                      //         child: Form(
-                      //           key: _formKey,
-                      //           child: TextFormField(
-                      //             controller: _textController,
-                      //             decoration: InputDecoration(
-                      //               labelText: 'Enter user id',
-                      //               border: OutlineInputBorder(),
-                      //             ),
-                      //             validator: (value) {
-                      //               if (value == null || value.isEmpty) {
-                      //                 return 'Please enter some text';
-                      //               }
-                      //               return null;
-                      //             },
-                      //           ),
-                      //         ),
-                      //       ),
-                      //       ElevatedButton(
-                      //         onPressed: () async {
-                      //           if (_formKey.currentState!.validate()) {
-                      //             try {
-                      //               String newUserId = _textController.text;
-                      //
-                      //               // Fetch user document from firestore
-                      //               DocumentSnapshot userDoc = await database
-                      //                   .collection('users').doc(newUserId).get();
-                      //
-                      //               // Check if such user exists
-                      //               if (userDoc.exists) {
-                      //                 // Fetch the user's card and add it to the wallet
-                      //                 await userProvider.user!.addCardToWallet(
-                      //                     userDoc.get('Card'));
-                      //                 await fetchData();
-                      //                 // Update _walletUsers
-                      //                 setState(() {
-                      //                   _walletUsers.add(
-                      //                       User_Card.fromDocument(userDoc));
-                      //                 });
-                      //
-                      //                 // Clear text field
-                      //                 _textController.clear();
-                      //               } else {
-                      //                 print('No user found with the provided ID');
-                      //               }
-                      //             } catch (e) {
-                      //               print('Error adding user: $e');
-                      //             }
-                      //           }
-                      //         },
-                      //         child: Text('Add User'),
-                      //       ),
-                      //     ],
-                      //   ),
+
 
                       AnimatedBuilder(
                         animation: _controller,
@@ -292,16 +189,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           itemCount: _walletUsers.length,
                           itemBuilder: (context, index) {
 
-                            //debugging.
-                            // print('Rendering card at index $index');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Fname'] ?? 'N/A');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Lname'] ?? 'N/A');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Linkedin'] ?? 'N/A');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Website'] ?? 'N/A');
+
                             return CardDisplay(
                               firstName: _walletUsers[index]
                                   .contactPage['Fname'] ?? 'N/A',
@@ -313,21 +201,13 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                   .contactPage['Linkedin'] ?? 'N/A',
                               website: _walletUsers[index]
                                   .contactPage['Website'] ?? 'N/A',
-                              profilePictureUrl: _walletUsers[index].profilePictureUrl,
+                              profilePictureUrl: _walletUsers[index].profilePictureUrl ?? 'assets/images/profile.png',
                             );
                           },
                         ),
 
                       ),
-                      // if(_isFlipped)
-                      // CardDisplay(
-                      //   firstName: 'Kevin',
-                      //   lastName: 'Khong',
-                      //   email: 'kevin79ers@gmail.com',
-                      //   profilePictureUrl: 'https://firebasestorage.googleapis.com/v0/b/carded-firebase.appspot.com/o/users%2FX1gEvg6ArnCqg1Qm0uUo%2FprofilePicture.png?alt=media&token=a8dd4f57-6f43-4b1f-b32a-f3ea0e378f7a',
-                      //   linkedin: 'aaa',
-                      //   website: 'aaa',
-                      // )
+
                     ],
                   ),
 
