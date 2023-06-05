@@ -81,7 +81,10 @@ class CardedHomePage extends StatelessWidget {
             Provider.of<curr_user.UserProvider>(context, listen: false).setUser(user);
           }
           return Scaffold(
-              appBar: AppBar(title: const Text("Carded")),
+              appBar: AppBar(
+                  title: const Text("Carded"),
+                  automaticallyImplyLeading: false,
+              ),
               body: FractionallySizedBox(
                   heightFactor: 1.0,
                   child: Center(

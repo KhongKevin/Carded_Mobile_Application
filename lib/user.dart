@@ -118,6 +118,7 @@ class UserProvider with ChangeNotifier {
   void _init() {
     _user = User("defaultID", "defaultEmail", "defaultCard", []);
     _userCard = User_Card("", {'': ''}, {'': ''});
+    wallet = [];
   }
 
   UserProvider() {
