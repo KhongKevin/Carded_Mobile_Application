@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 
 class UsernameTextField extends StatefulWidget {
+  const UsernameTextField({super.key});
+
 
   @override
   _TextInputWidgetState createState() => _TextInputWidgetState();
@@ -26,14 +28,14 @@ class _TextInputWidgetState extends State<UsernameTextField> {
   Widget build(BuildContext context) {
     return Column(children:<Widget>[
       Center(
-        child:Container(
+        child:SizedBox(
             width: 300,
             child: TextField(
-              controller: this.controller,
-              decoration: InputDecoration(
+              controller: controller,
+              decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.account_circle),
                   labelText: "Username:"),
-              onChanged: (text)=> this.changeText(text),
+              onChanged: (text)=> changeText(text),
             )
         ),
       ),

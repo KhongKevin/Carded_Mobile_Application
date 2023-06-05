@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:carded/user_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,21 +19,21 @@ class User with ChangeNotifier {
 
 
   User.fromDocument(DocumentSnapshot doc) {
-    this.refId = doc.id;
+    refId = doc.id;
     try {
-      this.email = doc.get('Email');
+      email = doc.get('Email');
     } catch (e) {
-      this.email = '';
+      email = '';
     }
     try {
-      this.card = doc.get('Card');
+      card = doc.get('Card');
     } catch (e) {
-      this.card = '';
+      card = '';
     }
     try {
-      this.wallet = List<String>.from(doc.get('Wallet'));
+      wallet = List<String>.from(doc.get('Wallet'));
     } catch (e) {
-      this.wallet = [];
+      wallet = [];
     }
     notifyListeners();
   }
@@ -53,14 +52,14 @@ class User with ChangeNotifier {
 
   static Future<void> addUser(String email, String fname, String lname) async {
     String cardID = await User_Card.addCard(fname, lname, email);
-    print("Card added");
+    debugPrint("Card added");
     final user = <String, dynamic>{
       "Card": cardID,
       "Email": email,
       "Wallet":[]
     };
     database.collection("users").add(user);
-    print("User added");
+    debugPrint("User added");
   }
 
   Future<User_Card> fetchUpdatedCard() async {
@@ -74,7 +73,7 @@ class User with ChangeNotifier {
   }
 
   Stream<List<User_Card>> watchWalletUsers() async* {
-    for (var cardId in this.wallet) {
+    for (var cardId in wallet) {
       // 'snapshots()' method provides a stream of snapshots
       var docStream = database.collection('cards').doc(cardId).snapshots();
 
@@ -154,10 +153,6 @@ class UserProvider with ChangeNotifier {
     );
   }
 
-  set walletUsers(List<User_Card> walletUsers) {
-    wallet = walletUsers;
-    notifyListeners();
-  }
   User? get user => _user;
   User_Card get userCard => _userCard; // Add getter for userCard
 
@@ -174,16 +169,16 @@ class UserProvider with ChangeNotifier {
             Map<String, dynamic> bP = docSnapshot['bioPage'];
             Map<String, dynamic> cP = docSnapshot['contactPage'];
             Map<String, String> bioPage = {
-              "Current Employment": bP['Current Employment'].toString() ?? "",
-              "Education": bP['Education'].toString() ?? "",
-              "Experience": bP['Experience'].toString() ?? ""
+              "Current Employment": bP['Current Employment'].toString(),
+              "Education": bP['Education'].toString(),
+              "Experience": bP['Experience'].toString()
             };
             Map<String, String> contactPage = {
-              "Email": cP['Email'].toString() ?? "",
-              "Fname": cP['Fname'].toString() ?? "",
-              "Lname": cP['Lname'].toString() ?? "",
-              "Linkedin": cP['Linkedin'].toString() ?? "",
-              "Website": cP['Website'].toString() ?? ""
+              "Email": cP['Email'].toString(),
+              "Fname": cP['Fname'].toString(),
+              "Lname": cP['Lname'].toString(),
+              "Linkedin": cP['Linkedin'].toString(),
+              "Website": cP['Website'].toString()
             };
 
             User_Card card = User_Card(ppurl, contactPage, bioPage);
@@ -220,36 +215,6 @@ class UserProvider with ChangeNotifier {
 
     return imageUrl;
   }
-
-
- /* Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
-    // Fetch user with the matching email
-    final userSnapshot = await database
-        .collection('users')
-        .where('Email', isEqualTo: userEmail)
-        .get();
-
-    if(userSnapshot.docs.isEmpty){
-      throw Exception("User not found");
-    }
-
-    // Extract the Wallet field from the user document
-    List<String> walletCardIds = List<String>.from(userSnapshot.docs.first.get('Wallet') ?? []);
-
-    // Fetch all cards from the 'cards' collection that match the ids in the Wallet field
-    List<User_Card> walletUsers = [];
-    for(String cardId in walletCardIds){
-      final cardSnapshot = await database.collection('cards').doc(cardId).get();
-      if(cardSnapshot.exists){
-        walletUsers.add(User_Card.fromDocument(cardSnapshot));
-      }
-    }
-
-    _walletUsers = walletUsers;
-    notifyListeners();
-
-    return walletUsers;
-  }*/
 
 
   void signOut() {

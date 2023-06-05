@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:carded/user.dart';
+import 'package:carded/user.dart' as curr_user;
 
 class QRCodePage extends StatelessWidget {
-  final User loggedIn;
+  final curr_user.User loggedIn;
 
-  QRCodePage({required this.loggedIn});
+  QRCodePage({super.key, required this.loggedIn});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QR Code'),
+        title: const Text('QR Code'),
       ),
       body: Center(
         child: RepaintBoundary(

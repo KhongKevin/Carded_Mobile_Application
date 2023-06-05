@@ -1,17 +1,15 @@
 import 'package:carded/QRGenerator.dart';
 import 'package:carded/QRScanner.dart';
-import 'package:carded/user.dart' as currUser;
+import 'package:carded/user.dart' as curr_user;
 import 'package:carded/user_card.dart' as card;
 import 'package:carded/user_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'card_display.dart';
 import 'package:provider/provider.dart';
-import 'edit_card_screen.dart';
 import 'dart:async'; // Import the async library
 
 class AddUsers extends StatefulWidget {
-  AddUsers({Key? key}) : super(key: key);
+  const AddUsers({Key? key}) : super(key: key);
 
   @override
   _AddUsersState createState() => _AddUsersState();
@@ -28,10 +26,11 @@ class _AddUsersState extends State<AddUsers> with ChangeNotifier {
     fetchData();
   }
 
+
   Future<void> fetchData() async {
-    Completer<void> _dataFetchCompleter = Completer<void>(); // Create a Completer to control data fetching
-    final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
-    final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
+    Completer<void> dataFetchCompleter = Completer<void>(); // Create a Completer to control data fetching
+    final userProvider = Provider.of<curr_user.UserProvider>(context, listen: false);
+    final user = userProvider.user ?? curr_user.User("defaultID", "defaultEmail", "defaultCard", []);
 
     try {
       if (user.card != "defaultCard") {
@@ -47,26 +46,25 @@ class _AddUsersState extends State<AddUsers> with ChangeNotifier {
           _walletUsers = users;
         });
       }
-      print(_walletUsers); // Debug print
+      debugPrint(_walletUsers.toString()); // Debug print
     } catch (error) {
       // Handle any error that occurs during data fetching
-      print('Error fetching data: $error');
+      debugPrint('Error fetching data: $error');
     } finally {
       // Mark the data fetching as complete
-      _dataFetchCompleter.complete();
+      dataFetchCompleter.complete();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<currUser.UserProvider>(
+    return Consumer<curr_user.UserProvider>(
       builder: (context, userProvider, child) {
         final user =
-            userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
-        final userCardData = userProvider.userCard;
+            userProvider.user ?? curr_user.User("defaultID", "defaultEmail", "defaultCard", []);
 
         return Scaffold(
-          appBar: AppBar(title: Text("Add and Scan Users")),
+          appBar: AppBar(title: const Text("Add and Scan Users")),
           body: FractionallySizedBox(
             heightFactor: 1.0,
             child: Center(
@@ -81,7 +79,7 @@ class _AddUsersState extends State<AddUsers> with ChangeNotifier {
                         MaterialPageRoute(builder: (context) => QRScannerPage()),
                       );
                     },
-                    child: Text('Scan QR Code'),
+                    child: const Text('Scan QR Code'),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -92,18 +90,18 @@ class _AddUsersState extends State<AddUsers> with ChangeNotifier {
                         ),
                       );
                     },
-                    child: Text('Display Your QR Code'),
+                    child: const Text('Display Your QR Code'),
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Form(
                           key: _formKey,
                           child: TextFormField(
                             controller: _textController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Enter user id',
                               border: OutlineInputBorder(),
                             ),
@@ -139,14 +137,14 @@ class _AddUsersState extends State<AddUsers> with ChangeNotifier {
                                 // Clear text field
                                 _textController.clear();
                               } else {
-                                print('No user found with the provided ID');
+                                debugPrint('No user found with the provided ID');
                               }
                             } catch (e) {
-                              print('Error adding user: $e');
+                              debugPrint('Error adding user: $e');
                             }
                           }
                         },
-                        child: Text('Add User'),
+                        child: const Text('Add User'),
                       ),
                     ],
                   ),
