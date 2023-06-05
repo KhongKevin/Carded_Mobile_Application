@@ -5,6 +5,7 @@ import 'package:carded/user_card.dart' as card;
 import 'package:carded/user_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'AddUsers.dart';
 import 'card_display.dart';
 import 'package:provider/provider.dart';
 import 'edit_card_screen.dart';
@@ -22,7 +23,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
   bool _isFlipped = false;
-  List<card.User_Card> _walletUsers = [];
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
 
@@ -53,6 +53,23 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
     fetchData(); // Call the function to fetch data
   }
 
+  // StreamSubscription? _walletUsersSubscription;
+  // void fetchData() async {
+  //   final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
+  //   final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
+  //
+  //   if (user.card != "defaultCard") {
+  //     // Fetch the user's card if not default
+  //     final docSnapshot = await database.collection('cards').doc(user.card).get();
+  //     final userCard = card.User_Card.fromDocument(docSnapshot);
+  //     userProvider.updateUserCard(userCard);
+  //   }
+  //
+  //   _walletUsersSubscription = user.watchWalletUsers().listen((walletUsers) {
+  //     userProvider.walletUsers = walletUsers; // Use the public setter here
+  //   });
+  //
+  // }
 
   Future<void> fetchData() async {
     _dataFetchCompleter = Completer<void>();
@@ -116,7 +133,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
                 // Show a loading indicator while data is being fetched
-                print('Wallet Users: $_walletUsers');
+                print('Wallet Users: ${userProvider.wallet}');
 
                 return Center(
                   child: CircularProgressIndicator(),
@@ -166,8 +183,19 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           child: Text('Edit Card'),
                         ),
                         SizedBox(height: 30),
+                        SizedBox(
+                          width: 200.0, // set the desired width here
+                          child: ElevatedButton(
+                            child: Text("Add Users"),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => AddUsers()),
+                              );
+                            },
+                          ),
+                        ),
                       ],
-
 
                       AnimatedBuilder(
                         animation: _controller,
@@ -181,33 +209,48 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           );
                         },
                         child: ListView.builder(
-
                           shrinkWrap: true,
                           // to make ListView inside Column
                           physics: NeverScrollableScrollPhysics(),
                           // to make ListView inside Column
-                          itemCount: _walletUsers.length,
+                          itemCount: userProvider.wallet.length,
                           itemBuilder: (context, index) {
 
-
+                            //debugging.
+                            // print('Rendering card at index $index');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Fname'] ?? 'N/A');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Lname'] ?? 'N/A');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Linkedin'] ?? 'N/A');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Website'] ?? 'N/A');
                             return CardDisplay(
-                              firstName: _walletUsers[index]
+                              firstName: userProvider.wallet[index]
                                   .contactPage['Fname'] ?? 'N/A',
-                              lastName: _walletUsers[index]
+                              lastName: userProvider.wallet[index]
                                   .contactPage['Lname'] ?? 'N/A',
-                              email: _walletUsers[index].contactPage['Email'] ??
+                              email: userProvider.wallet[index].contactPage['Email'] ??
                                   'N/A',
-                              linkedin: _walletUsers[index]
+                              linkedin: userProvider.wallet[index]
                                   .contactPage['Linkedin'] ?? 'N/A',
-                              website: _walletUsers[index]
+                              website: userProvider.wallet[index]
                                   .contactPage['Website'] ?? 'N/A',
-                              profilePictureUrl: _walletUsers[index].profilePictureUrl ?? 'assets/images/profile.png',
                             );
                           },
                         ),
 
                       ),
-
+                      // if(_isFlipped)
+                      // CardDisplay(
+                      //   firstName: 'Kevin',
+                      //   lastName: 'Khong',
+                      //   email: 'kevin79ers@gmail.com',
+                      //   profilePictureUrl: 'https://firebasestorage.googleapis.com/v0/b/carded-firebase.appspot.com/o/users%2FX1gEvg6ArnCqg1Qm0uUo%2FprofilePicture.png?alt=media&token=a8dd4f57-6f43-4b1f-b32a-f3ea0e378f7a',
+                      //   linkedin: 'aaa',
+                      //   website: 'aaa',
+                      // )
                     ],
                   ),
 

@@ -16,7 +16,7 @@ class User with ChangeNotifier {
   late User_Card updatedCard;
 
   User(this.refId, this.email, this.card, this.wallet)
-      : updatedCard = User_Card({'': ''}, {'': ''}); // Initialize an empty card
+      : updatedCard = User_Card("", {'': ''}, {'': ''}); // Initialize an empty card
 
 
   User.fromDocument(DocumentSnapshot doc) {
@@ -112,21 +112,50 @@ class User with ChangeNotifier {
 class UserProvider with ChangeNotifier {
   FirebaseFirestore database = FirebaseFirestore.instance;
   User? _user;
-  User_Card _userCard = User_Card({'': ''}, {'': ''}); // Add the userCard property
-  List<User_Card> _walletUsers = [];
+  User_Card _userCard = User_Card("", {'': ''}, {'': ''}); // Add the userCard property
+  List<User_Card> wallet = [];
 
   // Add an initializer to use in the signOut function
   void _init() {
     _user = User("defaultID", "defaultEmail", "defaultCard", []);
-    _userCard = User_Card({'': ''}, {'': ''});
+    _userCard = User_Card("", {'': ''}, {'': ''});
   }
 
   UserProvider() {
     _init();
   }
 
+  Future<void> addCardToWallet(String cardId) async {
+    _user?.addCardToWallet(cardId);
+
+    database.collection("cards").doc(cardId).get().then((docSnapshot) {
+      String ppurl = docSnapshot['profilePictureUrl'];
+      Map<String, dynamic> bP = docSnapshot['bioPage'];
+      Map<String, dynamic> cP = docSnapshot['contactPage'];
+      Map<String, String> bioPage = {
+        "Current Employment": bP['Current Employment'].toString(),
+        "Education": bP['Education'].toString(),
+        "Experience": bP['Experience'].toString()
+      };
+      Map<String, String> contactPage = {
+        "Email": cP['Email'].toString(),
+        "Fname": cP['Fname'].toString(),
+        "Lname": cP['Lname'].toString(),
+        "Linkedin": cP['Linkedin'].toString(),
+        "Website": cP['Website'].toString()
+      };
+
+      User_Card card = User_Card(ppurl, contactPage, bioPage);
+      wallet.add(card);
+    },
+      onError: (e) {
+        debugPrint('Error completing $e');
+      }
+    );
+  }
+
   set walletUsers(List<User_Card> walletUsers) {
-    _walletUsers = walletUsers;
+    wallet = walletUsers;
     notifyListeners();
   }
   User? get user => _user;
@@ -134,15 +163,40 @@ class UserProvider with ChangeNotifier {
 
   void setUser(User user) {
     _user = user;
+    List<String> w = user.wallet;
 
+    database.collection("cards").
+        where(FieldPath.documentId, whereIn: w).
+        get().
+        then((querySnapshot) {
+          for(var docSnapshot in querySnapshot.docs){
+            String ppurl = docSnapshot['profilePictureUrl'];
+            Map<String, dynamic> bP = docSnapshot['bioPage'];
+            Map<String, dynamic> cP = docSnapshot['contactPage'];
+            Map<String, String> bioPage = {
+              "Current Employment": bP['Current Employment'].toString() ?? "",
+              "Education": bP['Education'].toString() ?? "",
+              "Experience": bP['Experience'].toString() ?? ""
+            };
+            Map<String, String> contactPage = {
+              "Email": cP['Email'].toString() ?? "",
+              "Fname": cP['Fname'].toString() ?? "",
+              "Lname": cP['Lname'].toString() ?? "",
+              "Linkedin": cP['Linkedin'].toString() ?? "",
+              "Website": cP['Website'].toString() ?? ""
+            };
+
+            User_Card card = User_Card(ppurl, contactPage, bioPage);
+            wallet.add(card);
+          }
+        }, onError: (e) {
+            debugPrint("Error completing: $e");
+          }
+        );
     notifyListeners();
   }
 
 
-  void addWalletUser(User_Card userCard) {
-    _walletUsers.add(userCard);
-    notifyListeners();
-  }
   void updateUserCard(User_Card updatedCard) {
     if (_user != null) {
       _user!.updatedCard = updatedCard;
@@ -168,7 +222,7 @@ class UserProvider with ChangeNotifier {
   }
 
 
-  Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
+ /* Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
     // Fetch user with the matching email
     final userSnapshot = await database
         .collection('users')
@@ -195,7 +249,7 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
 
     return walletUsers;
-  }
+  }*/
 
 
   void signOut() {

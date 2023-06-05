@@ -11,7 +11,7 @@ class User_Card with ChangeNotifier {
   late Map<String, String> contactPage;
   late Map<String, String> bioPage;
 
-  User_Card(this.contactPage, this.bioPage);
+  User_Card(this.profilePictureUrl, this.contactPage, this.bioPage);
 
   void updateUserCard(User_Card updatedUserCard) {
     this.id = updatedUserCard.id; // Assuming you have a user object and it has a `card` property
