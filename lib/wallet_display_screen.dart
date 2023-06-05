@@ -53,7 +53,26 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
     fetchData(); // Call the function to fetch data
   }
 
-  void fetchData() async {
+  // StreamSubscription? _walletUsersSubscription;
+  // void fetchData() async {
+  //   final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
+  //   final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
+  //
+  //   if (user.card != "defaultCard") {
+  //     // Fetch the user's card if not default
+  //     final docSnapshot = await database.collection('cards').doc(user.card).get();
+  //     final userCard = card.User_Card.fromDocument(docSnapshot);
+  //     userProvider.updateUserCard(userCard);
+  //   }
+  //
+  //   _walletUsersSubscription = user.watchWalletUsers().listen((walletUsers) {
+  //     userProvider.walletUsers = walletUsers; // Use the public setter here
+  //   });
+  //
+  // }
+
+  Future<void> fetchData() async {
+    _dataFetchCompleter = Completer<void>();
     final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
     final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
 
@@ -63,6 +82,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
         final docSnapshot = await database.collection('cards').doc(user.card).get();
         final userCard = card.User_Card.fromDocument(docSnapshot);
         userProvider.updateUserCard(userCard);
+
       }
 
       if (_walletUsers.isEmpty && user.email != "defaultEmail") {
@@ -84,12 +104,14 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
   @override
   void dispose() {
+    //_walletUsersSubscription?.cancel();
     _textController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   void _toggleFlip() {
+    fetchData();
     setState(() {
       _isFlipped = !_isFlipped;
     });
@@ -123,17 +145,17 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                   child: Column(
                     children: [
                       if (!_isFlipped) ...[
-                        SizedBox(height: 100),
+                        SizedBox(height: 30),
                         SizedBox(height: 30,
                             child: Text(
                                 "Your Card", style: TextStyle(fontSize: 20))),
                         Container(
-                          height: 200,
+                          height: 220,
                           child: CardDisplay(
                             firstName: userCardData.contactPage['Fname'] ??
-                                'First Name',
+                                'FName',
                             lastName: userCardData.contactPage['Lname'] ??
-                                'Last Name',
+                                'LName',
                             email: userCardData.contactPage['Email'] ?? 'Email',
                             linkedin: userCardData.contactPage['Linkedin'] ??
                                 'linkedIn',
@@ -160,95 +182,95 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           },
                           child: Text('Edit Card'),
                         ),
-                        SizedBox(height: 100),
+                        SizedBox(height: 30),
                       ],
-                      if (!_isFlipped)
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => QRScannerPage()),
-                                );
-                              },
-                              child: Text('Scan QR Code'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      QRCodePage(loggedIn: user)),
-                                );
-                              },
-                              child: Text('Display Your QR Code'),
-                            ),
-                          ],
-                        ),
-                      if (!_isFlipped)
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // ...
-                            // your existing buttons here
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Form(
-                                key: _formKey,
-                                child: TextFormField(
-                                  controller: _textController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Enter user id',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  try {
-                                    String newUserId = _textController.text;
-
-                                    // Fetch user document from firestore
-                                    DocumentSnapshot userDoc = await database
-                                        .collection('users').doc(newUserId).get();
-
-                                    // Check if such user exists
-                                    if (userDoc.exists) {
-                                      // Fetch the user's card and add it to the wallet
-                                      await userProvider.user!.addCardToWallet(
-                                          userDoc.get('Card'));
-
-                                      // Update _walletUsers
-                                      setState(() {
-                                        _walletUsers.add(
-                                            User_Card.fromDocument(userDoc));
-                                      });
-
-                                      // Clear text field
-                                      _textController.clear();
-                                    } else {
-                                      print('No user found with the provided ID');
-                                    }
-                                  } catch (e) {
-                                    print('Error adding user: $e');
-                                  }
-                                }
-                              },
-                              child: Text('Add User'),
-                            ),
-                          ],
-                        ),
+                      // if (!_isFlipped)
+                      //   Column(
+                      //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     children: [
+                      //       ElevatedButton(
+                      //         onPressed: () {
+                      //           Navigator.push(
+                      //             context,
+                      //             MaterialPageRoute(
+                      //                 builder: (context) => QRScannerPage()),
+                      //           );
+                      //         },
+                      //         child: Text('Scan QR Code'),
+                      //       ),
+                      //       ElevatedButton(
+                      //         onPressed: () {
+                      //           Navigator.push(
+                      //             context,
+                      //             MaterialPageRoute(builder: (context) =>
+                      //                 QRCodePage(loggedIn: user)),
+                      //           );
+                      //         },
+                      //         child: Text('Display Your QR Code'),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // if (!_isFlipped)
+                      //   Column(
+                      //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     children: [
+                      //       // ...
+                      //       // your existing buttons here
+                      //       Padding(
+                      //         padding: EdgeInsets.all(8.0),
+                      //         child: Form(
+                      //           key: _formKey,
+                      //           child: TextFormField(
+                      //             controller: _textController,
+                      //             decoration: InputDecoration(
+                      //               labelText: 'Enter user id',
+                      //               border: OutlineInputBorder(),
+                      //             ),
+                      //             validator: (value) {
+                      //               if (value == null || value.isEmpty) {
+                      //                 return 'Please enter some text';
+                      //               }
+                      //               return null;
+                      //             },
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       ElevatedButton(
+                      //         onPressed: () async {
+                      //           if (_formKey.currentState!.validate()) {
+                      //             try {
+                      //               String newUserId = _textController.text;
+                      //
+                      //               // Fetch user document from firestore
+                      //               DocumentSnapshot userDoc = await database
+                      //                   .collection('users').doc(newUserId).get();
+                      //
+                      //               // Check if such user exists
+                      //               if (userDoc.exists) {
+                      //                 // Fetch the user's card and add it to the wallet
+                      //                 await userProvider.user!.addCardToWallet(
+                      //                     userDoc.get('Card'));
+                      //                 await fetchData();
+                      //                 // Update _walletUsers
+                      //                 setState(() {
+                      //                   _walletUsers.add(
+                      //                       User_Card.fromDocument(userDoc));
+                      //                 });
+                      //
+                      //                 // Clear text field
+                      //                 _textController.clear();
+                      //               } else {
+                      //                 print('No user found with the provided ID');
+                      //               }
+                      //             } catch (e) {
+                      //               print('Error adding user: $e');
+                      //             }
+                      //           }
+                      //         },
+                      //         child: Text('Add User'),
+                      //       ),
+                      //     ],
+                      //   ),
 
                       AnimatedBuilder(
                         animation: _controller,
@@ -262,6 +284,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           );
                         },
                         child: ListView.builder(
+
                           shrinkWrap: true,
                           // to make ListView inside Column
                           physics: NeverScrollableScrollPhysics(),

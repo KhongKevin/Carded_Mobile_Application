@@ -73,6 +73,21 @@ class User with ChangeNotifier {
     return updatedCard;
   }
 
+  Stream<List<User_Card>> watchWalletUsers() async* {
+    for (var cardId in this.wallet) {
+      // 'snapshots()' method provides a stream of snapshots
+      var docStream = database.collection('cards').doc(cardId).snapshots();
+
+      // Using await for loop to listen to the stream
+      await for (var snapshot in docStream) {
+        if (snapshot.exists) {
+          // Create a new User_Card and yield a list of them
+          User_Card userCard = User_Card.fromDocument(snapshot);
+          yield [userCard];  // Yields a List of User_Card
+        }
+      }
+    }
+  }
 
   Future<List<User_Card>> fetchWalletUsers() async {
     List<User_Card> walletUsers = [];
@@ -98,6 +113,7 @@ class UserProvider with ChangeNotifier {
   FirebaseFirestore database = FirebaseFirestore.instance;
   User? _user;
   User_Card _userCard = User_Card({'': ''}, {'': ''}); // Add the userCard property
+  List<User_Card> _walletUsers = [];
 
   // Add an initializer to use in the signOut function
   void _init() {
@@ -108,7 +124,10 @@ class UserProvider with ChangeNotifier {
   UserProvider() {
     _init();
   }
-
+  set walletUsers(List<User_Card> walletUsers) {
+    _walletUsers = walletUsers;
+    notifyListeners();
+  }
   User? get user => _user;
   User_Card get userCard => _userCard; // Add getter for userCard
 
@@ -117,6 +136,11 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+
+  void addWalletUser(User_Card userCard) {
+    _walletUsers.add(userCard);
+    notifyListeners();
+  }
   void updateUserCard(User_Card updatedCard) {
     if (_user != null) {
       _user!.updatedCard = updatedCard;
@@ -142,14 +166,22 @@ class UserProvider with ChangeNotifier {
 
     // Update the user card with the updated card
     updateUserCard(updatedCard);
+    notifyListeners();
 
     return imageUrl;
   }
 
   //fetch wallet users from database
   Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
-    final querySnapshot = await database.collection('users').where('email', isEqualTo: userEmail).get();
-    final walletUsers = querySnapshot.docs.map((doc) => User_Card.fromDocument(doc)).toList();
+    final querySnapshot = await database
+        .collection('users')
+        .where('Email', isEqualTo: userEmail)
+        .get();
+    final walletUsers =
+    querySnapshot.docs.map((doc) => User_Card.fromDocument(doc)).toList();
+    _walletUsers = walletUsers;
+    notifyListeners();
+
     return walletUsers;
   }
 

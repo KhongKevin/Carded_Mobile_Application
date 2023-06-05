@@ -1,10 +1,11 @@
 import 'package:barcode_scan2/platform_wrapper.dart';
+import 'package:carded/user.dart' as currUser;
+import 'package:carded/user_card.dart';
 import 'package:carded/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 class QRScannerPage extends StatefulWidget {
   @override
@@ -15,23 +16,8 @@ class _QRScannerPageState extends State<QRScannerPage> {
   String qrCodeResult = "Not Yet Scanned";
   UserModel? currentUser;
 
-  //TODO pulled from internet need to reformat and adjust
-  Future<void> addUserLocation(String userId) async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    final places = GoogleMapsPlaces(apiKey: dotenv.env['GOOGLE_MAPS_API_KEY']); // load your api key from .env file
-    PlacesSearchResponse response = await places.searchNearbyWithRadius(
-        Location(lat: position.latitude, lng: position.longitude), 500);
-
-    FirebaseFirestore.instance.collection('users').doc(userId).update({
-      'location': GeoPoint(position.latitude, position.longitude),
-      'address': response.results.first.formattedAddress //TODO HANDLE IF NO RESULTS FOUND
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Scan QR Code'),
@@ -69,7 +55,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                 final scanResult = await BarcodeScanner.scan();
                 setState(() {
                   qrCodeResult = scanResult.rawContent;
-                  addUserLocation(qrCodeResult); // assume qrCodeResult is the user's id
+                  handleScannedUser(context);
                 });
               },
               child: Text(
@@ -86,4 +72,29 @@ class _QRScannerPageState extends State<QRScannerPage> {
     );
   }
 
+  Future<void> handleScannedUser(BuildContext context) async {
+    try {
+      final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
+      final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
+
+      // Fetch user document from firestore
+      DocumentSnapshot userDoc = await currUser.database
+          .collection('users').doc(qrCodeResult).get();
+
+      // Check if such user exists
+      if (userDoc.exists) {
+        // Fetch the user's card and add it to the wallet
+        await userProvider.user!.addCardToWallet(
+            userDoc.get('Card'));
+
+        // Update wallet users in userProvider
+        User_Card newUserCard = User_Card.fromDocument(userDoc);
+        userProvider.addWalletUser(newUserCard);
+      } else {
+        print('No user found with the provided ID');
+      }
+    } catch (e) {
+      print('Error adding user: $e');
+    }
+  }
 }

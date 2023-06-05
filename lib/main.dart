@@ -1,4 +1,4 @@
-import 'package:carded/settings_screen.dart';
+import 'package:carded/AddUsers.dart';
 import 'package:carded/sign_up_screen.dart';
 import 'package:carded/wallet_display_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -83,7 +83,7 @@ class CardedHomePage extends StatelessWidget {
           return Scaffold(
               appBar: AppBar(title: const Text("Carded")),
               body: FractionallySizedBox(
-                  heightFactor: 0.7,
+                  heightFactor: 1.0,
                   child: Center(
                       child: SingleChildScrollView(
                           child: Column(
@@ -117,11 +117,11 @@ class CardedHomePage extends StatelessWidget {
                                 SizedBox(
                                   width: 200.0, // set the desired width here
                                   child: ElevatedButton(
-                                    child: Text("Settings"),
+                                    child: Text("Add Users"),
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => SettingsScreen()),
+                                        MaterialPageRoute(builder: (context) => AddUsers()),
                                       );
                                     },
                                   ),
