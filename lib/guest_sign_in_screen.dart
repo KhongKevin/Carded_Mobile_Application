@@ -46,7 +46,7 @@ class _GuestSignInScreenState extends State<GuestSignInScreen> {
         showSnackBar(context, 'Success');
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const WalletDisplayScreen()),
+          MaterialPageRoute(builder: (context) => WalletDisplayScreen()),
               (Route<dynamic> route) => false,
         );
 
