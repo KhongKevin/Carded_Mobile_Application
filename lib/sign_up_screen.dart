@@ -1,4 +1,4 @@
-import 'package:carded/user.dart' as curr_user;
+import 'package:carded/user.dart' as currUser;
 import 'package:carded/wallet_display_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +6,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:provider/provider.dart';
 
+import 'guest_sign_in_screen.dart';
 
 class SignUpScreen extends StatelessWidget {
   final FirebaseFirestore database = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  SignUpScreen({super.key});
 
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -24,7 +23,7 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sign Up Screen")),
+      appBar: AppBar(title: Text("Sign Up Screen")),
       body: FractionallySizedBox(
         heightFactor: 0.7,
         widthFactor: 0.9,
@@ -37,16 +36,16 @@ class SignUpScreen extends StatelessWidget {
               onPressed: () {
                 _googleSignIn.signIn().then((value) {
                   List<String> name = value!.displayName!.split(" ");
-                  String fname = name.first;
-                  String lname = name.last;
-                  String email = value.email;
-                  database.collection("users").where("Email", isEqualTo: value.email).get().then((querysnapshot) {
-                    querysnapshot.docs.isEmpty ? curr_user.User.addUser(email, fname, lname).then((_) {_showSnackBar(context, 'Sign-up successful');}).catchError((e) {
+                  String Fname = name.first;
+                  String Lname = name.last;
+                  String Email = value.email!;
+                  database.collection("users").where("Email", isEqualTo: value.email!).get().then((querysnapshot) {
+                    querysnapshot.docs.isEmpty ? currUser.User.addUser(Email, Fname, Lname).then((_) {_showSnackBar(context, 'Sign-up successful');}).catchError((e) {
                       debugPrint('Error signing up: $e');
                       _showSnackBar(context, 'Sign-up failed');
                     }) : {
                       for(var docSnapshot in querysnapshot.docs){
-                        Provider.of<curr_user.UserProvider>(context, listen: false).setUser(curr_user.User(
+                        Provider.of<currUser.UserProvider>(context, listen: false).setUser(currUser.User(
                             docSnapshot.id,
                             docSnapshot['Email'],
                             docSnapshot['Card'],

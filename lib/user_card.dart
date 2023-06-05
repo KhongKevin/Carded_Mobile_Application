@@ -14,17 +14,17 @@ class User_Card with ChangeNotifier {
   User_Card(this.profilePictureUrl, this.contactPage, this.bioPage);
 
   void updateUserCard(User_Card updatedUserCard) {
-    id = updatedUserCard.id; // Assuming you have a user object and it has a `card` property
+    this.id = updatedUserCard.id; // Assuming you have a user object and it has a `card` property
     notifyListeners(); // Notify listeners after changing the model
   }
 
   User_Card.fromDocument(DocumentSnapshot doc) {
-    id = doc.id;  // add this line
-    contactPage = Map<String, String>.from(doc['contactPage'] ?? {});
-    bioPage = Map<String, String>.from(doc['bioPage'] ?? {});
+    this.id = doc.id;  // add this line
+    this.contactPage = Map<String, String>.from(doc['contactPage'] ?? {});
+    this.bioPage = Map<String, String>.from(doc['bioPage'] ?? {});
 
     // Assign profilePictureUrl directly from the document
-    profilePictureUrl = doc['profilePictureUrl'];
+    this.profilePictureUrl = doc['profilePictureUrl'];
 
     notifyListeners();
   }

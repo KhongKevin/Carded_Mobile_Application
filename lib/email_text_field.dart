@@ -29,7 +29,7 @@ class _TextInputWidgetState extends State<EmailTextField> {
         child:Container(
             width: 300,
             child: TextField(
-              controller: controller,
+              controller: this.controller,
               decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.account_circle),
                   labelText: "Email:"),

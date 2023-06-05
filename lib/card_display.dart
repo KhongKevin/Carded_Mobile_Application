@@ -11,7 +11,7 @@ class CardDisplay extends StatelessWidget {
 
   final String defaultProfilePicture = 'assets/images/profile.png'; // Declare the asset path for the default profile picture
 
-  const CardDisplay({super.key,
+  CardDisplay({
     required this.firstName,
     required this.lastName,
     required this.email,
@@ -23,10 +23,10 @@ class CardDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(profilePictureUrl != null && profilePictureUrl != ''){
-      debugPrint("pfpURL exists");
+      print("pfpURL exists");
     }else{
-      debugPrint("pfpURL dne");
-      debugPrint(profilePictureUrl);
+      print("pfpURL dne");
+      print(profilePictureUrl);
     }
     return Card(
       color: Colors.orangeAccent,
@@ -47,34 +47,34 @@ class CardDisplay extends StatelessWidget {
                       : AssetImage(defaultProfilePicture) as ImageProvider,
 
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Text(
                   '$firstName $lastName',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8.0),
+            SizedBox(height: 8.0),
             Text(
               email,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16.0,
               ),
             ),
-            const SizedBox(height: 8.0),
+            SizedBox(height: 8.0),
             Text(
               linkedin ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16.0,
               ),
             ),
-            const SizedBox(height: 8.0),
+            SizedBox(height: 8.0),
             Text(
               website ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16.0,
               ),
             ),

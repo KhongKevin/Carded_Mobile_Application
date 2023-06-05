@@ -2,14 +2,15 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'user.dart' as curr_user;
+import 'user.dart';
 import 'package:carded/user_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class EditCardScreen extends StatefulWidget {
   final User_Card userCard;
 
-  const EditCardScreen({super.key, required this.userCard});
+  EditCardScreen({required this.userCard});
 
   @override
   _EditCardScreenState createState() => _EditCardScreenState();
@@ -62,9 +63,9 @@ class _EditCardScreenState extends State<EditCardScreen> {
       setState(() {
         _profileImage = File(image.path);
       });
-      debugPrint('Image selected: ${_profileImage?.path}');
+      print('Image selected: ${_profileImage?.path}');
     } else {
-      debugPrint('No image selected.');
+      print('No image selected.');
     }
   }
   void _showSnackBar(String message) {
@@ -84,12 +85,12 @@ class _EditCardScreenState extends State<EditCardScreen> {
 
     User_Card? updatedUserCard;
     try {
-      debugPrint("ahh1");
+      print("ahh1");
       FirebaseFirestore firestore = FirebaseFirestore.instance;
-      debugPrint("ahh2");
+      print("ahh2");
       if (_profileImage != null) {
-        debugPrint("aah3");
-        String profileImageUrl = await Provider.of<curr_user.UserProvider>(
+        print("aah3");
+        String profileImageUrl = await Provider.of<UserProvider>(
           context,
           listen: false,
         ).uploadProfilePicture(_profileImage!, widget.userCard.id);
@@ -100,10 +101,10 @@ class _EditCardScreenState extends State<EditCardScreen> {
         });
 
         // Update the profile picture URL in the User_Card object
-        User_Card userCard = widget.userCard;
-        userCard.profilePictureUrl = profileImageUrl;
-        debugPrint(profileImageUrl);
-        Provider.of<curr_user.UserProvider>(context, listen: false).updateUserCard(userCard);
+        User_Card user_card = widget.userCard;
+        user_card.profilePictureUrl = profileImageUrl;
+        print(profileImageUrl);
+        Provider.of<UserProvider>(context, listen: false).updateUserCard(user_card);
       }
 
       // Update the other fields in Firebase
@@ -121,7 +122,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
       updatedUserCard = User_Card.fromDocument(cardSnapshot);
 
       // update the user card
-      Provider.of<curr_user.UserProvider>(context, listen: false)
+      Provider.of<UserProvider>(context, listen: false)
           .updateUserCard(updatedUserCard);
 
       // Show success message
@@ -133,7 +134,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
 
     if (updatedUserCard != null || _profileImage == null) {
       print(_profileImage);
-      Provider.of<curr_user.UserProvider>(context, listen: false).updateUserCard(updatedUserCard!);
+      Provider.of<UserProvider>(context, listen: false).updateUserCard(updatedUserCard!);
       Navigator.pop(context, updatedUserCard);
     }
   }
@@ -145,38 +146,38 @@ class _EditCardScreenState extends State<EditCardScreen> {
     return ScaffoldMessenger(
       key: _scaffoldMessengerKey,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Edit Card')),
+        appBar: AppBar(title: Text('Edit Card')),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               IconButton(
-                icon: const Icon(Icons.photo_library),
+                icon: Icon(Icons.photo_library),
                 onPressed: _pickImage,
               ),
               TextFormField(
                 controller: _firstNameController,
-                decoration: const InputDecoration(labelText: 'First Name'),
+                decoration: InputDecoration(labelText: 'First Name'),
               ),
               TextFormField(
                 controller: _lastNameController,
-                decoration: const InputDecoration(labelText: 'Last Name'),
+                decoration: InputDecoration(labelText: 'Last Name'),
               ),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: 'Email'),
               ),
               TextFormField(
                 controller: _linkedinController,
-                decoration: const InputDecoration(labelText: 'LinkedIn'),
+                decoration: InputDecoration(labelText: 'LinkedIn'),
               ),
               TextFormField(
                 controller: _websiteController,
-                decoration: const InputDecoration(labelText: 'Website'),
+                decoration: InputDecoration(labelText: 'Website'),
               ),
               ElevatedButton(
                 onPressed: _saveCardDetails,
-                child: const Text('Save'),
+                child: Text('Save'),
               ),
             ],
           ),

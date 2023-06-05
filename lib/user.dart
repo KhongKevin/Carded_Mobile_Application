@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:carded/user_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,21 +20,21 @@ class User with ChangeNotifier {
 
 
   User.fromDocument(DocumentSnapshot doc) {
-    refId = doc.id;
+    this.refId = doc.id;
     try {
-      email = doc.get('Email');
+      this.email = doc.get('Email');
     } catch (e) {
-      email = '';
+      this.email = '';
     }
     try {
-      card = doc.get('Card');
+      this.card = doc.get('Card');
     } catch (e) {
-      card = '';
+      this.card = '';
     }
     try {
-      wallet = List<String>.from(doc.get('Wallet'));
+      this.wallet = List<String>.from(doc.get('Wallet'));
     } catch (e) {
-      wallet = [];
+      this.wallet = [];
     }
     notifyListeners();
   }
@@ -52,14 +53,14 @@ class User with ChangeNotifier {
 
   static Future<void> addUser(String email, String fname, String lname) async {
     String cardID = await User_Card.addCard(fname, lname, email);
-    debugPrint("Card added");
+    print("Card added");
     final user = <String, dynamic>{
       "Card": cardID,
       "Email": email,
       "Wallet":[]
     };
     database.collection("users").add(user);
-    debugPrint("User added");
+    print("User added");
   }
 
   Future<User_Card> fetchUpdatedCard() async {
@@ -73,7 +74,7 @@ class User with ChangeNotifier {
   }
 
   Stream<List<User_Card>> watchWalletUsers() async* {
-    for (var cardId in wallet) {
+    for (var cardId in this.wallet) {
       // 'snapshots()' method provides a stream of snapshots
       var docStream = database.collection('cards').doc(cardId).snapshots();
 
@@ -154,6 +155,10 @@ class UserProvider with ChangeNotifier {
     );
   }
 
+  set walletUsers(List<User_Card> walletUsers) {
+    wallet = walletUsers;
+    notifyListeners();
+  }
   User? get user => _user;
   User_Card get userCard => _userCard; // Add getter for userCard
 
@@ -219,6 +224,36 @@ class UserProvider with ChangeNotifier {
 
     return imageUrl;
   }
+
+
+ /* Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
+    // Fetch user with the matching email
+    final userSnapshot = await database
+        .collection('users')
+        .where('Email', isEqualTo: userEmail)
+        .get();
+
+    if(userSnapshot.docs.isEmpty){
+      throw Exception("User not found");
+    }
+
+    // Extract the Wallet field from the user document
+    List<String> walletCardIds = List<String>.from(userSnapshot.docs.first.get('Wallet') ?? []);
+
+    // Fetch all cards from the 'cards' collection that match the ids in the Wallet field
+    List<User_Card> walletUsers = [];
+    for(String cardId in walletCardIds){
+      final cardSnapshot = await database.collection('cards').doc(cardId).get();
+      if(cardSnapshot.exists){
+        walletUsers.add(User_Card.fromDocument(cardSnapshot));
+      }
+    }
+
+    _walletUsers = walletUsers;
+    notifyListeners();
+
+    return walletUsers;
+  }*/
 
 
   void signOut() {

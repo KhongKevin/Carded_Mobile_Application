@@ -25,12 +25,12 @@ class _TextInputWidgetState extends State<PasswordTextField> {
   @override
   Widget build(BuildContext context) {
     return Column(children:<Widget>[
-      SizedBox(
+      Container(
         width: 300,
         child:
         TextField(
-          controller: controller,
-          decoration: const InputDecoration(
+          controller: this.controller,
+          decoration: InputDecoration(
               labelText: "Password:",
               prefixIcon: Icon(Icons.account_circle)),
           onChanged: (text)=> this.changeText(text),

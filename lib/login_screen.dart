@@ -1,5 +1,6 @@
 import 'package:carded/guest_sign_in_screen.dart';
-import 'package:carded/user.dart' as curr_user;
+import 'package:carded/sign_up_screen.dart';
+import 'package:carded/user.dart' as currUser;
 import 'package:carded/wallet_display_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -7,8 +8,6 @@ import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  LoginScreen({super.key});
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -19,7 +18,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<curr_user.UserProvider>(context, listen: false);
+    final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,7 +26,7 @@ class LoginScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 200, width: 100),
+          SizedBox(height: 200, width: 100),
           Center(
             child: MaterialButton(
               onPressed: () {
@@ -44,7 +43,7 @@ class LoginScreen extends StatelessWidget {
                         String email = docSnapshot['Email'];
                         String card = docSnapshot['Card'];
                         List<String> wallet = docSnapshot['Wallet'].cast<String>();
-                        curr_user.User loggedIn = curr_user.User(refId, email, card, wallet);
+                        currUser.User loggedIn = currUser.User(refId, email, card, wallet);
                         userProvider.setUser(loggedIn);
                         Navigator.push(
                           context,
@@ -76,7 +75,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 50, width: 100),
+          SizedBox(height: 50, width: 100),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -86,7 +85,7 @@ class LoginScreen extends StatelessWidget {
                 ),
               );
             },
-            child: const Text("Sign In As Guest"),
+            child: Text("Sign In As Guest"),
           ),
         ],
       ),
