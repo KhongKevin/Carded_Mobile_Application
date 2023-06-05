@@ -1,7 +1,6 @@
 import 'package:barcode_scan2/platform_wrapper.dart';
 import 'package:carded/user.dart' as currUser;
 import 'package:carded/user_card.dart';
-import 'package:carded/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +13,6 @@ class QRScannerPage extends StatefulWidget {
 
 class _QRScannerPageState extends State<QRScannerPage> {
   String qrCodeResult = "Not Yet Scanned";
-  UserModel? currentUser;
 
   @override
   Widget build(BuildContext context) {
