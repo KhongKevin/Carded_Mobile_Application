@@ -121,8 +121,10 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
   Widget build(BuildContext context) {
     return Consumer<currUser.UserProvider>(
       builder: (context, userProvider, child) {
-        final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
+        final user = userProvider.user!;
         final userCardData = userProvider.userCard;
+
+
 
         return Scaffold(
           appBar: AppBar(title: Text(user.email)),

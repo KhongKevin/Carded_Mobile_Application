@@ -1,13 +1,13 @@
 import 'package:carded/guest_sign_in_screen.dart';
 import 'package:carded/sign_up_screen.dart';
-import 'package:carded/user.dart';
+import 'package:carded/user.dart' as currUser;
 import 'package:carded/wallet_display_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -18,6 +18,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -29,20 +31,20 @@ class LoginScreen extends StatelessWidget {
             child: MaterialButton(
               onPressed: () {
                 _googleSignIn.signIn().then((value) {
-                  database
+                  userProvider.database
                       .collection("users")
                       .where("Email", isEqualTo: value!.email)
                       .get()
                       .then(
                         (querySnapshot) {
-                      print(
-                          "----------------------------------------------------Success-------------------------------------------------------");
+                      print("----------------------------------------------------Success-------------------------------------------------------");
                       for (var docSnapshot in querySnapshot.docs) {
-                        User loggedIn = User(
-                            docSnapshot.id,
-                            docSnapshot['Email'],
-                            docSnapshot['Card'],
-                            docSnapshot['Wallet']);
+                        String refId = docSnapshot.id;
+                        String email = docSnapshot['Email'];
+                        String card = docSnapshot['Card'];
+                        List<String> wallet = docSnapshot['Wallet'].cast<String>();
+                        currUser.User loggedIn = currUser.User(refId, email, card, wallet);
+                        userProvider.setUser(loggedIn);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

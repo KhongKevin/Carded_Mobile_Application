@@ -39,7 +39,6 @@ class User with ChangeNotifier {
     notifyListeners();
   }
 
-
   Future<void> addCardToWallet(String cardId) async {
     wallet.add(cardId);
 
@@ -63,6 +62,7 @@ class User with ChangeNotifier {
     database.collection("users").add(user);
     print("User added");
   }
+
   Future<User_Card> fetchUpdatedCard() async {
     if (card != "defaultCard") {
       DocumentSnapshot cardSnapshot =
@@ -124,6 +124,7 @@ class UserProvider with ChangeNotifier {
   UserProvider() {
     _init();
   }
+
   set walletUsers(List<User_Card> walletUsers) {
     _walletUsers = walletUsers;
     notifyListeners();
@@ -133,6 +134,7 @@ class UserProvider with ChangeNotifier {
 
   void setUser(User user) {
     _user = user;
+
     notifyListeners();
   }
 
