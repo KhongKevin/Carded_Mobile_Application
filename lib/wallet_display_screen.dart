@@ -1,4 +1,5 @@
-import 'package:carded/user.dart' as currUser;
+import 'package:carded/main.dart';
+import 'package:carded/user.dart' as curr_user;
 import 'package:carded/user_card.dart' as card;
 import 'package:carded/user_card.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import 'edit_card_screen.dart';
 import 'dart:async'; // Import the async library
 
 class WalletDisplayScreen extends StatefulWidget {
-  WalletDisplayScreen({Key? key}): super(key: key);
+  const WalletDisplayScreen({Key? key}): super(key: key);
 
   @override
   _WalletDisplayScreenState createState() => _WalletDisplayScreenState();
@@ -20,7 +21,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
   bool _isFlipped = false;
-  final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
 
   Completer<void> _dataFetchCompleter = Completer<void>(); // Create a Completer to control data fetching
@@ -33,8 +33,8 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
       vsync: this,
     );
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 1),
-      end: Offset(0, 0),
+      begin: const Offset(0, 1),
+      end: const Offset(0, 0),
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
@@ -52,8 +52,8 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
   Future<void> fetchData() async {
     _dataFetchCompleter = Completer<void>();
-    final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
-    final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
+    final userProvider = Provider.of<curr_user.UserProvider>(context, listen: false);
+    final user = userProvider.user ?? curr_user.User("defaultID", "defaultEmail", "defaultCard", []);
 
     try {
       if (user.card != "defaultCard") {
@@ -69,7 +69,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
       // Rest of the code...
     } catch (error) {
 
-      print('Error fetching data: $error');
+      debugPrint('Error fetching data: $error');
     } finally {
       _dataFetchCompleter.complete();
     }
@@ -98,7 +98,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<currUser.UserProvider>(
+    return Consumer<curr_user.UserProvider>(
       builder: (context, userProvider, child) {
         final user = userProvider.user!;
         final userCardData = userProvider.userCard;
@@ -106,7 +106,22 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
 
         return Scaffold(
-          appBar: AppBar(title: Text(user.email)),
+          appBar: AppBar(
+              title: Text(user.email),
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      userProvider.signOut();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CardedHomePage(),)
+                      );
+                    },
+                    icon: const Icon(Icons.logout)
+                )
+              ],
+          ),
           body: FutureBuilder<void>(
             future: _dataFetchCompleter.future, // Wait for data fetching to complete
             builder: (context, snapshot) {
@@ -114,7 +129,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                 // Show a loading indicator while data is being fetched
                 print('Wallet Users: ${userProvider.wallet}');
 
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               }
@@ -122,11 +137,11 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                   child: Column(
                     children: [
                       if (!_isFlipped) ...[
-                        SizedBox(height: 30),
-                        SizedBox(height: 30,
+                        const SizedBox(height: 30),
+                        const SizedBox(height: 30,
                             child: Text(
                                 "Your Card", style: TextStyle(fontSize: 20))),
-                        Container(
+                        SizedBox(
                           height: 220,
                           child: CardDisplay(
                             firstName: userCardData.contactPage['Fname'] ??
@@ -139,6 +154,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                             website: userCardData.contactPage['Website'] ??
                                 'Website',
                             profilePictureUrl: userCardData.profilePictureUrl,
+                            //     'Website',
                           ),
                         ),
                         ElevatedButton(
@@ -149,8 +165,8 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                   EditCardScreen(userCard: userCardData)),
                             ).then((updatedUserCard) {
                               if (updatedUserCard != null) {
-                                currUser.UserProvider userProvider = Provider.of<
-                                    currUser.UserProvider>(
+                                curr_user.UserProvider userProvider = Provider.of<
+                                    curr_user.UserProvider>(
                                     context, listen: false);
                                 userProvider.updateUserCard(
                                     updatedUserCard as card
@@ -158,17 +174,17 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                               }
                             });
                           },
-                          child: Text('Edit Card'),
+                          child: const Text('Edit Card'),
                         ),
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
                         SizedBox(
                           width: 200.0, // set the desired width here
                           child: ElevatedButton(
-                            child: Text("Add Users"),
+                            child: const Text("Add Users"),
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => AddUsers()),
+                                MaterialPageRoute(builder: (context) => const AddUsers()),
                               );
                             },
                           ),
@@ -189,7 +205,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                         child: ListView.builder(
                           shrinkWrap: true,
                           // to make ListView inside Column
-                          physics: NeverScrollableScrollPhysics(),
+                          physics: const NeverScrollableScrollPhysics(),
                           // to make ListView inside Column
                           itemCount: userProvider.wallet.length,
                           itemBuilder: (context, index) {
@@ -205,7 +221,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                   .contactPage['Linkedin'] ?? 'N/A',
                               website: userProvider.wallet[index]
                                   .contactPage['Website'] ?? 'N/A',
-                              profilePictureUrl: userProvider.wallet[index].profilePictureUrl ?? 'assets/images/profile.png',
                             );
                           },
                         ),
@@ -224,7 +239,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
             height: 30,
             alignment: Alignment.bottomCenter,
             child: InkWell(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
               ),
@@ -239,7 +254,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
               child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(15),
                     topRight: Radius.circular(15),
                   ),
@@ -249,7 +264,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                 alignment: Alignment.center,
                 child: Text(
                   _isFlipped ? 'Hide Wallet' : 'Show Wallet',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
