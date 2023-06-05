@@ -148,6 +148,8 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+
   Future<String> uploadProfilePicture(File imageFile, String uid) async {
     String fileName = 'users/$uid/profilePicture.png'; // File path in the storage
 
@@ -160,30 +162,39 @@ class UserProvider with ChangeNotifier {
     //get the URL of the uploaded file
     String imageUrl = await taskSnapshot.ref.getDownloadURL();
 
-    // Update the imageUrl of the userCard
-    User_Card updatedCard = _userCard; // Assuming _userCard is the current user's card
-    updatedCard.profilePictureUrl = imageUrl; // Assuming imageUrl is a field in your User_Card class
-
-    // Update the user card with the updated card
-    updateUserCard(updatedCard);
-    notifyListeners();
-
     return imageUrl;
   }
 
-  //fetch wallet users from database
+
   Future<List<User_Card>> fetchWalletUsers(String userEmail) async {
-    final querySnapshot = await database
+    // Fetch user with the matching email
+    final userSnapshot = await database
         .collection('users')
         .where('Email', isEqualTo: userEmail)
         .get();
-    final walletUsers =
-    querySnapshot.docs.map((doc) => User_Card.fromDocument(doc)).toList();
+
+    if(userSnapshot.docs.isEmpty){
+      throw Exception("User not found");
+    }
+
+    // Extract the Wallet field from the user document
+    List<String> walletCardIds = List<String>.from(userSnapshot.docs.first.get('Wallet') ?? []);
+
+    // Fetch all cards from the 'cards' collection that match the ids in the Wallet field
+    List<User_Card> walletUsers = [];
+    for(String cardId in walletCardIds){
+      final cardSnapshot = await database.collection('cards').doc(cardId).get();
+      if(cardSnapshot.exists){
+        walletUsers.add(User_Card.fromDocument(cardSnapshot));
+      }
+    }
+
     _walletUsers = walletUsers;
     notifyListeners();
 
     return walletUsers;
   }
+
 
   void signOut() {
     _init(); // Reset the user and userCard to their initial states
