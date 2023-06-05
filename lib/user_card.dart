@@ -22,9 +22,13 @@ class User_Card with ChangeNotifier {
     this.id = doc.id;  // add this line
     this.contactPage = Map<String, String>.from(doc['contactPage'] ?? {});
     this.bioPage = Map<String, String>.from(doc['bioPage'] ?? {});
+
+    // Assign profilePictureUrl directly from the document
     this.profilePictureUrl = doc['profilePictureUrl'];
+
     notifyListeners();
   }
+
 
   static Future<String> addCard(String fname, String lname, String email) async {
     final card = <String, dynamic>{

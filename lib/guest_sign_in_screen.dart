@@ -66,9 +66,6 @@ class _GuestSignInScreenState extends State<GuestSignInScreen> {
     });
   }
 
-
-
-
   void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

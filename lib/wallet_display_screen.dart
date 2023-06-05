@@ -78,28 +78,24 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
     try {
       if (user.card != "defaultCard") {
-        // Fetch the user's card if not default
         final docSnapshot = await database.collection('cards').doc(user.card).get();
+
+        // Get profilePictureUrl from the document
+        final profilePictureUrl = docSnapshot['profilePictureUrl'];
+
         final userCard = card.User_Card.fromDocument(docSnapshot);
         userProvider.updateUserCard(userCard);
-
       }
 
-      if (_walletUsers.isEmpty && user.email != "defaultEmail") {
-        final users = await user.fetchWalletUsers();
-        setState(() {
-          _walletUsers = users;
-        });
-      }
-      print(_walletUsers); // Debug print
+      // Rest of the code...
     } catch (error) {
-      // Handle any error that occurs during data fetching
+
       print('Error fetching data: $error');
     } finally {
-      // Mark the data fetching as complete
       _dataFetchCompleter.complete();
     }
   }
+
 
 
   @override
@@ -163,6 +159,8 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                 'linkedIn',
                             website: userCardData.contactPage['Website'] ??
                                 'Website',
+                            profilePictureUrl: userCardData.profilePictureUrl,
+                            //     'Website',
                           ),
                         ),
                         ElevatedButton(
@@ -295,15 +293,15 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           itemBuilder: (context, index) {
 
                             //debugging.
-                            print('Rendering card at index $index');
-                            print(_walletUsers[index]
-                                .contactPage['Fname'] ?? 'N/A');
-                            print(_walletUsers[index]
-                                .contactPage['Lname'] ?? 'N/A');
-                            print(_walletUsers[index]
-                                .contactPage['Linkedin'] ?? 'N/A');
-                            print(_walletUsers[index]
-                                .contactPage['Website'] ?? 'N/A');
+                            // print('Rendering card at index $index');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Fname'] ?? 'N/A');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Lname'] ?? 'N/A');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Linkedin'] ?? 'N/A');
+                            // print(_walletUsers[index]
+                            //     .contactPage['Website'] ?? 'N/A');
                             return CardDisplay(
                               firstName: _walletUsers[index]
                                   .contactPage['Fname'] ?? 'N/A',
@@ -318,7 +316,17 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                             );
                           },
                         ),
+
                       ),
+                      // if(_isFlipped)
+                      // CardDisplay(
+                      //   firstName: 'Kevin',
+                      //   lastName: 'Khong',
+                      //   email: 'kevin79ers@gmail.com',
+                      //   profilePictureUrl: 'https://firebasestorage.googleapis.com/v0/b/carded-firebase.appspot.com/o/users%2FX1gEvg6ArnCqg1Qm0uUo%2FprofilePicture.png?alt=media&token=a8dd4f57-6f43-4b1f-b32a-f3ea0e378f7a',
+                      //   linkedin: 'aaa',
+                      //   website: 'aaa',
+                      // )
                     ],
                   ),
 

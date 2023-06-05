@@ -22,6 +22,12 @@ class CardDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(profilePictureUrl != null && profilePictureUrl != ''){
+      print("pfpURL exists");
+    }else{
+      print("pfpURL dne");
+      print(profilePictureUrl);
+    }
     return Card(
       color: Colors.orangeAccent,
       shape: RoundedRectangleBorder(
