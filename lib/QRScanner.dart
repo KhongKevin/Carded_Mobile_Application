@@ -84,12 +84,8 @@ class _QRScannerPageState extends State<QRScannerPage> {
       // Check if such user exists
       if (userDoc.exists) {
         // Fetch the user's card and add it to the wallet
-        await userProvider.user!.addCardToWallet(
+        await userProvider.addCardToWallet(
             userDoc.get('Card'));
-
-        // Update wallet users in userProvider
-        User_Card newUserCard = User_Card.fromDocument(userDoc);
-        userProvider.addWalletUser(newUserCard);
       } else {
         print('No user found with the provided ID');
       }
