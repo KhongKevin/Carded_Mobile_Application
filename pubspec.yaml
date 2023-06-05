@@ -45,10 +45,10 @@ dependencies:
   geolocator: ^8.0.0
   google_maps_webservice: ^0.0.20-nullsafety.3
   flutter_dotenv: ^5.0.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  provider: ^6.0.1
+  firebase_storage: ^11.2.2
+  image_picker: ^0.8.7+5
+  firebase_app_check: ^0.1.4+2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

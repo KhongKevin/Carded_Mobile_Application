@@ -8,6 +8,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 class LoginScreen extends StatelessWidget {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,14 +46,20 @@ class LoginScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                WalletDisplayScreen(loggedin: loggedIn),
+                            builder: (context) => WalletDisplayScreen(),
                           ),
                         );
+                        _showSnackBar(context, 'Signed in successfully!');
                       }
                     },
-                    onError: (e) => debugPrint("Error completing: $e"),
+                    onError: (e) {
+                      debugPrint("Error completing: $e");
+                      _showSnackBar(context, 'Sign-in failed!');
+                    },
                   );
+                }).catchError((e) {
+                  debugPrint("Error signing in: $e");
+                  _showSnackBar(context, 'Sign-in failed!');
                 });
               },
               color: Colors.deepOrange,
@@ -59,7 +73,18 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
           ),
-
+          SizedBox(height: 50, width: 100),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GuestSignInScreen(),
+                ),
+              );
+            },
+            child: Text("Sign In As Guest"),
+          ),
         ],
       ),
     );
