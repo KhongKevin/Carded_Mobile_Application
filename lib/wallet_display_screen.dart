@@ -1,9 +1,6 @@
-import 'package:carded/QRGenerator.dart';
-import 'package:carded/QRScanner.dart';
 import 'package:carded/user.dart' as currUser;
 import 'package:carded/user_card.dart' as card;
 import 'package:carded/user_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'AddUsers.dart';
 import 'card_display.dart';
@@ -52,24 +49,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
 
     fetchData(); // Call the function to fetch data
   }
-
-  // StreamSubscription? _walletUsersSubscription;
-  // void fetchData() async {
-  //   final userProvider = Provider.of<currUser.UserProvider>(context, listen: false);
-  //   final user = userProvider.user ?? currUser.User("defaultID", "defaultEmail", "defaultCard", []);
-  //
-  //   if (user.card != "defaultCard") {
-  //     // Fetch the user's card if not default
-  //     final docSnapshot = await database.collection('cards').doc(user.card).get();
-  //     final userCard = card.User_Card.fromDocument(docSnapshot);
-  //     userProvider.updateUserCard(userCard);
-  //   }
-  //
-  //   _walletUsersSubscription = user.watchWalletUsers().listen((walletUsers) {
-  //     userProvider.walletUsers = walletUsers; // Use the public setter here
-  //   });
-  //
-  // }
 
   Future<void> fetchData() async {
     _dataFetchCompleter = Completer<void>();
@@ -160,7 +139,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                             website: userCardData.contactPage['Website'] ??
                                 'Website',
                             profilePictureUrl: userCardData.profilePictureUrl,
-                            //     'Website',
                           ),
                         ),
                         ElevatedButton(
@@ -216,16 +194,6 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           itemCount: userProvider.wallet.length,
                           itemBuilder: (context, index) {
 
-                            //debugging.
-                            // print('Rendering card at index $index');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Fname'] ?? 'N/A');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Lname'] ?? 'N/A');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Linkedin'] ?? 'N/A');
-                            // print(_walletUsers[index]
-                            //     .contactPage['Website'] ?? 'N/A');
                             return CardDisplay(
                               firstName: userProvider.wallet[index]
                                   .contactPage['Fname'] ?? 'N/A',
@@ -237,20 +205,12 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                   .contactPage['Linkedin'] ?? 'N/A',
                               website: userProvider.wallet[index]
                                   .contactPage['Website'] ?? 'N/A',
+                              profilePictureUrl: userProvider.wallet[index].profilePictureUrl ?? 'assets/images/profile.png',
                             );
                           },
                         ),
 
                       ),
-                      // if(_isFlipped)
-                      // CardDisplay(
-                      //   firstName: 'Kevin',
-                      //   lastName: 'Khong',
-                      //   email: 'kevin79ers@gmail.com',
-                      //   profilePictureUrl: 'https://firebasestorage.googleapis.com/v0/b/carded-firebase.appspot.com/o/users%2FX1gEvg6ArnCqg1Qm0uUo%2FprofilePicture.png?alt=media&token=a8dd4f57-6f43-4b1f-b32a-f3ea0e378f7a',
-                      //   linkedin: 'aaa',
-                      //   website: 'aaa',
-                      // )
                     ],
                   ),
 
