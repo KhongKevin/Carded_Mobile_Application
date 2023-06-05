@@ -113,6 +113,8 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
                 // Show a loading indicator while data is being fetched
+                print('Wallet Users: $_walletUsers');
+
                 return Center(
                   child: CircularProgressIndicator(),
                 );
@@ -199,7 +201,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                                 child: TextFormField(
                                   controller: _textController,
                                   decoration: InputDecoration(
-                                    labelText: 'Enter username',
+                                    labelText: 'Enter user id',
                                     border: OutlineInputBorder(),
                                   ),
                                   validator: (value) {
@@ -247,6 +249,7 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                             ),
                           ],
                         ),
+
                       AnimatedBuilder(
                         animation: _controller,
                         builder: (context, child) {
@@ -265,6 +268,17 @@ class _WalletDisplayScreenState extends State<WalletDisplayScreen> with SingleTi
                           // to make ListView inside Column
                           itemCount: _walletUsers.length,
                           itemBuilder: (context, index) {
+
+                            //debugging.
+                            print('Rendering card at index $index');
+                            print(_walletUsers[index]
+                                .contactPage['Fname'] ?? 'N/A');
+                            print(_walletUsers[index]
+                                .contactPage['Lname'] ?? 'N/A');
+                            print(_walletUsers[index]
+                                .contactPage['Linkedin'] ?? 'N/A');
+                            print(_walletUsers[index]
+                                .contactPage['Website'] ?? 'N/A');
                             return CardDisplay(
                               firstName: _walletUsers[index]
                                   .contactPage['Fname'] ?? 'N/A',
